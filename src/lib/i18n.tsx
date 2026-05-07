@@ -127,7 +127,7 @@ const en: Dict = {
   "menu.help": "Help Center",
   "menu.tagline": "v1.0 · Healthcare made simple",
   // Specialties
-  "spec.cardio": "Cardiology",
+  "spec.cardio": "Proctologist",
   "spec.derma": "Dermatology",
   "spec.neuro": "Neurology",
   "spec.pedia": "Pediatrics",
@@ -256,7 +256,7 @@ const ar: Dict = {
   "menu.language": "اللغة",
   "menu.help": "مركز المساعدة",
   "menu.tagline": "الإصدار 1.0 · الرعاية الصحية بكل بساطة",
-  "spec.cardio": "أمراض القلب",
+  "spec.cardio": "جراح القولون والمستقيم",
   "spec.derma": "الجلدية",
   "spec.neuro": "أمراض الأعصاب",
   "spec.pedia": "طب الأطفال",
