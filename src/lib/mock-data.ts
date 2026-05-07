@@ -44,7 +44,7 @@ export type Doctor = {
 export const doctors: Doctor[] = [
   {
     id: "d1",
-    name: "Dr. Layla Hassan", nameAr: "د. ليلى حسن",
+    name: "Dr. Anas Al-Aidan", nameAr: "د. انس العيدان",
     specialization: "Cardiology",
     subspecialty: "Interventional Cardiology",
     bio: "Board-certified cardiologist focused on preventive care and minimally invasive procedures.",
