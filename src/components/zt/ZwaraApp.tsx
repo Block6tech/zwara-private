@@ -253,7 +253,7 @@ function HomeTab({
             <DoctorAvatar seed={upcomingDoc.avatarSeed} name={upcomingDoc.name} size={48} />
             <div className="flex-1 min-w-0">
               <p className="text-[11px] opacity-90 uppercase tracking-wide">{t("home.upcoming")}</p>
-              <p className="font-semibold truncate">{upcomingDoc.name}</p>
+              <p className="font-semibold truncate">{dName(upcomingDoc, lang)}</p>
               <p className="text-xs opacity-90 flex items-center gap-1">
                 <Clock className="w-3 h-3" /> {upcoming.slot}
               </p>
@@ -320,7 +320,7 @@ function DoctorCard({ doctor, onClick }: { doctor: Doctor; onClick: () => void }
       <DoctorAvatar seed={doctor.avatarSeed} name={doctor.name} size={60} />
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between gap-2">
-          <p className="font-semibold truncate">{doctor.name}</p>
+          <p className="font-semibold truncate">{dName(doctor, lang)}</p>
           <div className="flex items-center gap-1 text-xs">
             <Star className="w-3.5 h-3.5 fill-warning text-warning" />
             <span className="font-semibold">{doctor.rating}</span>
@@ -352,7 +352,7 @@ function DoctorScreen({ doctor, onBack, onBook }: { doctor: Doctor; onBack: () =
         <div className="flex items-center gap-4 mt-2">
           <DoctorAvatar seed={doctor.avatarSeed} name={doctor.name} size={84} />
           <div className="flex-1 min-w-0">
-            <h2 className="text-lg font-bold leading-tight">{doctor.name}</h2>
+            <h2 className="text-lg font-bold leading-tight">{dName(doctor, lang)}</h2>
             <p className="text-sm text-primary font-medium">{doctor.specialization}</p>
             <p className="text-xs text-muted-foreground">{doctor.subspecialty}</p>
             <div className="flex items-center gap-3 mt-1.5 text-xs">
@@ -534,7 +534,7 @@ function BookingConfirm({ doctor, slot, onBack, onConfirm }: { doctor: Doctor; s
         <div className="bg-card border border-border rounded-2xl p-4 shadow-soft flex gap-3 items-center">
           <DoctorAvatar seed={doctor.avatarSeed} name={doctor.name} size={56} />
           <div>
-            <p className="font-semibold">{doctor.name}</p>
+            <p className="font-semibold">{dName(doctor, lang)}</p>
             <p className="text-xs text-primary">{doctor.specialization}</p>
             <p className="text-xs text-muted-foreground">{doctor.subspecialty}</p>
           </div>
@@ -874,7 +874,7 @@ function BookingsScreen({ bookings, onBack }: { bookings: Booking[]; onBack: () 
               <div className="flex gap-3 items-center">
                 <DoctorAvatar seed={d.avatarSeed} name={d.name} size={48} />
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm truncate">{d.name}</p>
+                  <p className="font-semibold text-sm truncate">{dName(d, lang)}</p>
                   <p className="text-xs text-primary">{d.specialization}</p>
                   <p className="text-[11px] text-muted-foreground flex items-center gap-1 mt-0.5">
                     <Clock className="w-3 h-3" />{b.slot}
