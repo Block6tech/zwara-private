@@ -22,6 +22,7 @@ export type Doctor = {
   specialization: string;
   subspecialty: string;
   bio: string;
+  bioAr: string;
   nationality: string;
   languages: string[];
   expertise: string[];
