@@ -78,7 +78,7 @@ export const doctors: Doctor[] = [
   },
   {
     id: "d2",
-    name: "Dr. Omar Al-Rashid", nameAr: "د. عمر الراشد",
+    name: "Dr. Ali Alajmi", nameAr: "د. علي العجمي",
     specialization: "Dermatology",
     subspecialty: "Cosmetic Dermatology",
     bio: "Specializes in clinical and aesthetic dermatology with 10+ years of experience.",
