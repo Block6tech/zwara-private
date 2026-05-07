@@ -49,6 +49,21 @@ function dName(d: { name: string; nameAr: string }, lang: string) {
   return lang === "ar" ? d.nameAr : d.name;
 }
 
+// Localized slot label (e.g. "Today 4:30 PM" -> "اليوم 4:30 م")
+const SLOT_AR: Record<string, string> = {
+  Today: "اليوم", Tomorrow: "غداً",
+  Mon: "الإثنين", Tue: "الثلاثاء", Wed: "الأربعاء", Thu: "الخميس",
+  Fri: "الجمعة", Sat: "السبت", Sun: "الأحد",
+  AM: "ص", PM: "م",
+};
+function tSlot(slot: string, lang: string) {
+  if (lang !== "ar") return slot;
+  return slot
+    .split(" ")
+    .map((tok) => SLOT_AR[tok] ?? tok)
+    .join(" ");
+}
+
 export function ZwaraApp() {
   const { t } = useI18n();
   const [tab, setTab] = useState<Tab>("home");
