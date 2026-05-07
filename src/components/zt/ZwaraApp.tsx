@@ -44,6 +44,11 @@ function BackIcon({ className = "" }: { className?: string }) {
   return <ArrowLeft className={`${className} rtl:rotate-180`} />;
 }
 
+// Localized doctor name based on current language
+function dName(d: { name: string; nameAr: string }, lang: string) {
+  return lang === "ar" ? d.nameAr : d.name;
+}
+
 export function ZwaraApp() {
   const { t } = useI18n();
   const [tab, setTab] = useState<Tab>("home");
