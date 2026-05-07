@@ -238,13 +238,7 @@ function HomeTab({
           <button onClick={onOpenMenu} className="p-2 -ms-2 rounded-xl hover:bg-card/60">
             <Menu className="w-6 h-6 text-foreground" />
           </button>
-          <div className="flex items-center gap-2">
-            <img src={logo} alt="Zwara Tabeya" className="w-9 h-9 object-contain" />
-            <div className="text-center">
-              <p className="text-[11px] text-muted-foreground">{t("home.welcomeBack")}</p>
-              <p className="text-sm font-semibold">{userTag}</p>
-            </div>
-          </div>
+          <img src={logo} alt="Zwara Tabeya" className="w-10 h-10 object-contain" />
           <button className="p-2 -me-2 rounded-xl hover:bg-card/60 relative">
             <Bell className="w-6 h-6 text-foreground" />
             <span className="absolute top-2 end-2 w-2 h-2 rounded-full bg-destructive" />
@@ -253,6 +247,9 @@ function HomeTab({
         <h1 className="text-2xl font-bold tracking-tight leading-tight">
           {t("home.title.find")} <span className="text-primary">{t("home.title.doctor")}</span>
         </h1>
+        <p className="text-[11px] text-muted-foreground mt-1">
+          {t("home.welcomeBack")}, <span className="font-semibold text-foreground">{userTag}</span>
+        </p>
         <p className="text-sm text-muted-foreground mt-1">{t("home.subtitle")}</p>
 
         <div className="mt-4 relative">
