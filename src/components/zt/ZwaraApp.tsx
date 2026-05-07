@@ -49,6 +49,21 @@ function dName(d: { name: string; nameAr: string }, lang: string) {
   return lang === "ar" ? d.nameAr : d.name;
 }
 
+// Localized slot label (e.g. "Today 4:30 PM" -> "اليوم 4:30 م")
+const SLOT_AR: Record<string, string> = {
+  Today: "اليوم", Tomorrow: "غداً",
+  Mon: "الإثنين", Tue: "الثلاثاء", Wed: "الأربعاء", Thu: "الخميس",
+  Fri: "الجمعة", Sat: "السبت", Sun: "الأحد",
+  AM: "ص", PM: "م",
+};
+function tSlot(slot: string, lang: string) {
+  if (lang !== "ar") return slot;
+  return slot
+    .split(" ")
+    .map((tok) => SLOT_AR[tok] ?? tok)
+    .join(" ");
+}
+
 export function ZwaraApp() {
   const { t } = useI18n();
   const [tab, setTab] = useState<Tab>("home");
@@ -386,7 +401,7 @@ function DoctorScreen({ doctor, onBack, onBook }: { doctor: Doctor; onBack: () =
 
       {tab === "about" ? (
         <div className="px-5 mt-4 space-y-4">
-          <p className="text-sm leading-relaxed text-muted-foreground">{doctor.bio}</p>
+          <p className="text-sm leading-relaxed text-muted-foreground">{lang === "ar" ? doctor.bioAr : doctor.bio}</p>
 
           <InfoRow icon={Globe} label={t("doctor.nationality")} value={doctor.nationality} />
           <InfoRow icon={Languages} label={t("doctor.languages")} value={doctor.languages.join(" · ")} />
@@ -462,7 +477,7 @@ function DoctorScreen({ doctor, onBack, onBook }: { doctor: Doctor; onBack: () =
                   sel ? "bg-primary text-primary-foreground border-primary shadow-card" : "bg-card border-border hover:border-primary/40"
                 }`}
               >
-                {slot}
+                {tSlot(slot, lang)}
               </button>
             );
           })}
@@ -479,7 +494,7 @@ function DoctorScreen({ doctor, onBack, onBook }: { doctor: Doctor; onBack: () =
           onClick={() => selectedSlot && onBook(selectedSlot)}
           className="w-full py-3.5 rounded-2xl bg-gradient-primary text-primary-foreground font-semibold shadow-card disabled:opacity-40 disabled:shadow-none transition-all"
         >
-          {selectedSlot ? `${t("doctor.book")} ${selectedSlot}` : t("doctor.selectSlot")}
+          {selectedSlot ? `${t("doctor.book")} ${tSlot(selectedSlot, lang)}` : t("doctor.selectSlot")}
         </button>
       </div>
     </div>
@@ -540,7 +555,7 @@ function BookingConfirm({ doctor, slot, onBack, onConfirm }: { doctor: Doctor; s
           </div>
         </div>
         <div className="bg-card border border-border rounded-2xl divide-y divide-border shadow-soft">
-          <Row label={t("booking.dateTime")} value={slot} />
+          <Row label={t("booking.dateTime")} value={tSlot(slot, lang)} />
           <Row label={t("booking.location")} value={`${doctor.city} ${t("booking.locationClinic")}`} />
           <Row label={t("booking.feeLabel")} value={`${doctor.fee} ${t("common.kwd")}`} />
         </div>
