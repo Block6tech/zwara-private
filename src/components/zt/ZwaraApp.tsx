@@ -555,7 +555,7 @@ function BookingConfirm({ doctor, slot, onBack, onConfirm }: { doctor: Doctor; s
           </div>
         </div>
         <div className="bg-card border border-border rounded-2xl divide-y divide-border shadow-soft">
-          <Row label={t("booking.dateTime")} value={slot} />
+          <Row label={t("booking.dateTime")} value={tSlot(slot, lang)} />
           <Row label={t("booking.location")} value={`${doctor.city} ${t("booking.locationClinic")}`} />
           <Row label={t("booking.feeLabel")} value={`${doctor.fee} ${t("common.kwd")}`} />
         </div>
