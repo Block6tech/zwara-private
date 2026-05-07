@@ -197,7 +197,7 @@ export function ZwaraApp() {
 function HomeTab({
   onOpenDoctor, onOpenMenu, userTag, bookings,
 }: { onOpenDoctor: (id: string) => void; onOpenMenu: () => void; userTag: string; bookings: Booking[] }) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const [query, setQuery] = useState("");
   const [activeSpec, setActiveSpec] = useState<string | null>(null);
   const filtered = useMemo(
@@ -311,7 +311,7 @@ function HomeTab({
 }
 
 function DoctorCard({ doctor, onClick }: { doctor: Doctor; onClick: () => void }) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   return (
     <button
       onClick={onClick}
@@ -340,7 +340,7 @@ function DoctorCard({ doctor, onClick }: { doctor: Doctor; onClick: () => void }
 
 /* ---------------- DOCTOR DETAIL ---------------- */
 function DoctorScreen({ doctor, onBack, onBook }: { doctor: Doctor; onBack: () => void; onBook: (slot: string) => void }) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [tab, setTab] = useState<"about" | "reviews">("about");
   return (
@@ -521,7 +521,7 @@ function Section({ title, icon: Icon, children }: { title: string; icon: React.C
 
 /* ---------------- BOOKING CONFIRM ---------------- */
 function BookingConfirm({ doctor, slot, onBack, onConfirm }: { doctor: Doctor; slot: string; onBack: () => void; onConfirm: () => void }) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const [reason, setReason] = useState("");
   return (
     <div className="flex-1 overflow-y-auto">
@@ -859,7 +859,7 @@ function FilterChips({ label, options, value, onChange, renderLabel }: {
 
 /* ---------------- BOOKINGS ---------------- */
 function BookingsScreen({ bookings, onBack }: { bookings: Booking[]; onBack: () => void }) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   return (
     <div className="flex-1 overflow-y-auto px-5 pt-2 pb-6">
       <button onClick={onBack} className="p-2 -ms-2"><BackIcon className="w-5 h-5" /></button>
