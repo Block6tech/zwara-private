@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ZwaraApp } from "@/components/zt/ZwaraApp";
 import { Toaster } from "@/components/ui/sonner";
+import { I18nProvider } from "@/lib/i18n";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -16,9 +17,9 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   return (
-    <>
+    <I18nProvider>
       <ZwaraApp />
       <Toaster position="top-center" />
-    </>
+    </I18nProvider>
   );
 }
