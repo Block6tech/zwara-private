@@ -251,7 +251,7 @@ export type EventItem = {
 
 export const events: EventItem[] = [
   { id: "e1", title: "Middle East Cardiology Summit 2026", date: "May 22, 2026", city: "Dubai", country: "UAE", specialization: "Proctologist", type: "Conference", attendees: 1200 },
-  { id: "e2", title: "Pediatric Vaccination Awareness Day", date: "May 18, 2026", city: "Cairo", country: "Egypt", specialization: "Pediatrics", type: "Campaign", attendees: 350 },
+  { id: "e2", title: "Pediatric Vaccination Awareness Day", date: "May 18, 2026", city: "London", country: "UK", specialization: "Pediatrics", type: "Campaign", attendees: 350 },
   { id: "e3", title: "Advanced Dermatology Workshop", date: "Jun 04, 2026", city: "Amman", country: "Jordan", specialization: "Dermatology", type: "Workshop", attendees: 80 },
   { id: "e4", title: "Mental Health Webinar: Anxiety in Youth", date: "May 30, 2026", city: "Online", country: "Global", specialization: "Psychiatry", type: "Webinar", attendees: 2400 },
   { id: "e5", title: "Sports Medicine Conference", date: "Jul 12, 2026", city: "Doha", country: "Qatar", specialization: "Orthopedics", type: "Conference", attendees: 600 },
