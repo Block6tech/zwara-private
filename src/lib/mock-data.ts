@@ -233,7 +233,7 @@ export type QAItem = {
 };
 
 export const qaItems: QAItem[] = [
-  { id: "q1", user: "Anas", question: "Is it normal to feel dizzy after starting blood pressure medication?", answer: { user: "Dr. Layla Hassan", text: "Yes, mild dizziness is common in the first week. If it persists, contact your doctor." }, category: "Cardiology", time: "2h ago" },
+  { id: "q1", user: "Anas", question: "Is it normal to feel dizzy after starting blood pressure medication?", answer: { user: "Dr. Anas Al-Aidan", text: "Yes, mild dizziness is common in the first week. If it persists, contact your doctor." }, category: "Cardiology", time: "2h ago" },
   { id: "q2", user: "User#90234", question: "What's the safest acne treatment for sensitive skin?", answer: { user: "Dr. Omar Khalid", text: "Start with a gentle salicylic acid cleanser and a non-comedogenic moisturizer." }, category: "Dermatology", time: "5h ago" },
   { id: "q3", user: "User#11023", question: "When should my baby get their first vaccinations?", category: "Pediatrics", time: "1d ago" },
 ];
