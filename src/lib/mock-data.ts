@@ -18,6 +18,7 @@ export const specialties: Specialty[] = [
 export type Doctor = {
   id: string;
   name: string;
+  nameAr: string;
   specialization: string;
   subspecialty: string;
   bio: string;
