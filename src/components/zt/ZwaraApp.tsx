@@ -401,7 +401,7 @@ function DoctorScreen({ doctor, onBack, onBook }: { doctor: Doctor; onBack: () =
 
       {tab === "about" ? (
         <div className="px-5 mt-4 space-y-4">
-          <p className="text-sm leading-relaxed text-muted-foreground">{doctor.bio}</p>
+          <p className="text-sm leading-relaxed text-muted-foreground">{lang === "ar" ? doctor.bioAr : doctor.bio}</p>
 
           <InfoRow icon={Globe} label={t("doctor.nationality")} value={doctor.nationality} />
           <InfoRow icon={Languages} label={t("doctor.languages")} value={doctor.languages.join(" · ")} />
@@ -477,7 +477,7 @@ function DoctorScreen({ doctor, onBack, onBook }: { doctor: Doctor; onBack: () =
                   sel ? "bg-primary text-primary-foreground border-primary shadow-card" : "bg-card border-border hover:border-primary/40"
                 }`}
               >
-                {slot}
+                {tSlot(slot, lang)}
               </button>
             );
           })}
@@ -494,7 +494,7 @@ function DoctorScreen({ doctor, onBack, onBook }: { doctor: Doctor; onBack: () =
           onClick={() => selectedSlot && onBook(selectedSlot)}
           className="w-full py-3.5 rounded-2xl bg-gradient-primary text-primary-foreground font-semibold shadow-card disabled:opacity-40 disabled:shadow-none transition-all"
         >
-          {selectedSlot ? `${t("doctor.book")} ${selectedSlot}` : t("doctor.selectSlot")}
+          {selectedSlot ? `${t("doctor.book")} ${tSlot(selectedSlot, lang)}` : t("doctor.selectSlot")}
         </button>
       </div>
     </div>
