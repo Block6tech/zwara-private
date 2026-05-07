@@ -34,7 +34,7 @@ export type Doctor = {
   workHistory: { role: string; place: string; period: string }[];
   rating: number;
   reviewsCount: number;
-  reviews: { user: string; rating: number; text: string }[];
+  reviews: { user: string; rating: number; text: string; textAr: string }[];
   fee: number;
   city: string;
   avatarSeed: string;
