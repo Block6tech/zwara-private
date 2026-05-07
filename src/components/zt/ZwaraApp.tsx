@@ -44,6 +44,11 @@ function BackIcon({ className = "" }: { className?: string }) {
   return <ArrowLeft className={`${className} rtl:rotate-180`} />;
 }
 
+// Localized doctor name based on current language
+function dName(d: { name: string; nameAr: string }, lang: string) {
+  return lang === "ar" ? d.nameAr : d.name;
+}
+
 export function ZwaraApp() {
   const { t } = useI18n();
   const [tab, setTab] = useState<Tab>("home");
@@ -192,7 +197,7 @@ export function ZwaraApp() {
 function HomeTab({
   onOpenDoctor, onOpenMenu, userTag, bookings,
 }: { onOpenDoctor: (id: string) => void; onOpenMenu: () => void; userTag: string; bookings: Booking[] }) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const [query, setQuery] = useState("");
   const [activeSpec, setActiveSpec] = useState<string | null>(null);
   const filtered = useMemo(
@@ -248,7 +253,7 @@ function HomeTab({
             <DoctorAvatar seed={upcomingDoc.avatarSeed} name={upcomingDoc.name} size={48} />
             <div className="flex-1 min-w-0">
               <p className="text-[11px] opacity-90 uppercase tracking-wide">{t("home.upcoming")}</p>
-              <p className="font-semibold truncate">{upcomingDoc.name}</p>
+              <p className="font-semibold truncate">{dName(upcomingDoc, lang)}</p>
               <p className="text-xs opacity-90 flex items-center gap-1">
                 <Clock className="w-3 h-3" /> {upcoming.slot}
               </p>
@@ -306,7 +311,7 @@ function HomeTab({
 }
 
 function DoctorCard({ doctor, onClick }: { doctor: Doctor; onClick: () => void }) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   return (
     <button
       onClick={onClick}
@@ -315,7 +320,7 @@ function DoctorCard({ doctor, onClick }: { doctor: Doctor; onClick: () => void }
       <DoctorAvatar seed={doctor.avatarSeed} name={doctor.name} size={60} />
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between gap-2">
-          <p className="font-semibold truncate">{doctor.name}</p>
+          <p className="font-semibold truncate">{dName(doctor, lang)}</p>
           <div className="flex items-center gap-1 text-xs">
             <Star className="w-3.5 h-3.5 fill-warning text-warning" />
             <span className="font-semibold">{doctor.rating}</span>
@@ -335,7 +340,7 @@ function DoctorCard({ doctor, onClick }: { doctor: Doctor; onClick: () => void }
 
 /* ---------------- DOCTOR DETAIL ---------------- */
 function DoctorScreen({ doctor, onBack, onBook }: { doctor: Doctor; onBack: () => void; onBook: (slot: string) => void }) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [tab, setTab] = useState<"about" | "reviews">("about");
   return (
@@ -347,7 +352,7 @@ function DoctorScreen({ doctor, onBack, onBook }: { doctor: Doctor; onBack: () =
         <div className="flex items-center gap-4 mt-2">
           <DoctorAvatar seed={doctor.avatarSeed} name={doctor.name} size={84} />
           <div className="flex-1 min-w-0">
-            <h2 className="text-lg font-bold leading-tight">{doctor.name}</h2>
+            <h2 className="text-lg font-bold leading-tight">{dName(doctor, lang)}</h2>
             <p className="text-sm text-primary font-medium">{doctor.specialization}</p>
             <p className="text-xs text-muted-foreground">{doctor.subspecialty}</p>
             <div className="flex items-center gap-3 mt-1.5 text-xs">
@@ -516,7 +521,7 @@ function Section({ title, icon: Icon, children }: { title: string; icon: React.C
 
 /* ---------------- BOOKING CONFIRM ---------------- */
 function BookingConfirm({ doctor, slot, onBack, onConfirm }: { doctor: Doctor; slot: string; onBack: () => void; onConfirm: () => void }) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const [reason, setReason] = useState("");
   return (
     <div className="flex-1 overflow-y-auto">
@@ -529,7 +534,7 @@ function BookingConfirm({ doctor, slot, onBack, onConfirm }: { doctor: Doctor; s
         <div className="bg-card border border-border rounded-2xl p-4 shadow-soft flex gap-3 items-center">
           <DoctorAvatar seed={doctor.avatarSeed} name={doctor.name} size={56} />
           <div>
-            <p className="font-semibold">{doctor.name}</p>
+            <p className="font-semibold">{dName(doctor, lang)}</p>
             <p className="text-xs text-primary">{doctor.specialization}</p>
             <p className="text-xs text-muted-foreground">{doctor.subspecialty}</p>
           </div>
@@ -854,7 +859,7 @@ function FilterChips({ label, options, value, onChange, renderLabel }: {
 
 /* ---------------- BOOKINGS ---------------- */
 function BookingsScreen({ bookings, onBack }: { bookings: Booking[]; onBack: () => void }) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   return (
     <div className="flex-1 overflow-y-auto px-5 pt-2 pb-6">
       <button onClick={onBack} className="p-2 -ms-2"><BackIcon className="w-5 h-5" /></button>
@@ -869,7 +874,7 @@ function BookingsScreen({ bookings, onBack }: { bookings: Booking[]; onBack: () 
               <div className="flex gap-3 items-center">
                 <DoctorAvatar seed={d.avatarSeed} name={d.name} size={48} />
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm truncate">{d.name}</p>
+                  <p className="font-semibold text-sm truncate">{dName(d, lang)}</p>
                   <p className="text-xs text-primary">{d.specialization}</p>
                   <p className="text-[11px] text-muted-foreground flex items-center gap-1 mt-0.5">
                     <Clock className="w-3 h-3" />{b.slot}

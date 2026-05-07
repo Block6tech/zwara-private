@@ -18,6 +18,7 @@ export const specialties: Specialty[] = [
 export type Doctor = {
   id: string;
   name: string;
+  nameAr: string;
   specialization: string;
   subspecialty: string;
   bio: string;
@@ -43,7 +44,7 @@ export type Doctor = {
 export const doctors: Doctor[] = [
   {
     id: "d1",
-    name: "Dr. Layla Hassan",
+    name: "Dr. Layla Hassan", nameAr: "د. ليلى حسن",
     specialization: "Cardiology",
     subspecialty: "Interventional Cardiology",
     bio: "Board-certified cardiologist focused on preventive care and minimally invasive procedures.",
@@ -77,7 +78,7 @@ export const doctors: Doctor[] = [
   },
   {
     id: "d2",
-    name: "Dr. Omar Al-Sabah",
+    name: "Dr. Omar Al-Sabah", nameAr: "د. عمر الصباح",
     specialization: "Dermatology",
     subspecialty: "Cosmetic Dermatology",
     bio: "Specializes in clinical and aesthetic dermatology with 10+ years of experience.",
@@ -106,7 +107,7 @@ export const doctors: Doctor[] = [
   },
   {
     id: "d3",
-    name: "Dr. Sara Al-Otaibi",
+    name: "Dr. Sara Al-Otaibi", nameAr: "د. سارة العتيبي",
     specialization: "Pediatrics",
     subspecialty: "Neonatology",
     bio: "Caring pediatrician dedicated to child wellness and developmental health.",
@@ -132,7 +133,7 @@ export const doctors: Doctor[] = [
   },
   {
     id: "d4",
-    name: "Dr. Khalid Al-Mutairi",
+    name: "Dr. Khalid Al-Mutairi", nameAr: "د. خالد المطيري",
     specialization: "Neurology",
     subspecialty: "Stroke & Vascular Neurology",
     bio: "Neurologist with expertise in stroke management and headache disorders.",
@@ -156,7 +157,7 @@ export const doctors: Doctor[] = [
   },
   {
     id: "d5",
-    name: "Dr. Nadia Al-Ajmi",
+    name: "Dr. Nadia Al-Ajmi", nameAr: "د. نادية العجمي",
     specialization: "Dentistry",
     subspecialty: "Orthodontics",
     bio: "Modern orthodontic care with clear aligners and braces.",
@@ -180,7 +181,7 @@ export const doctors: Doctor[] = [
   },
   {
     id: "d6",
-    name: "Dr. Hassan Al-Maktoum",
+    name: "Dr. Hassan Al-Maktoum", nameAr: "د. حسن آل مكتوم",
     specialization: "Orthopedics",
     subspecialty: "Sports Medicine",
     bio: "Sports orthopedic surgeon, knee & shoulder specialist.",
