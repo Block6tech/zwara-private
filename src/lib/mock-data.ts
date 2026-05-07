@@ -5,7 +5,7 @@ export type Specialty = {
 };
 
 export const specialties: Specialty[] = [
-  { id: "cardio", name: "Cardiology", icon: "HeartPulse" },
+  { id: "cardio", name: "Proctologist", icon: "HeartPulse" },
   { id: "derma", name: "Dermatology", icon: "Sparkles" },
   { id: "neuro", name: "Neurology", icon: "Brain" },
   { id: "pedia", name: "Pediatrics", icon: "Baby" },
@@ -45,7 +45,7 @@ export const doctors: Doctor[] = [
   {
     id: "d1",
     name: "Dr. Anas Al-Aidan", nameAr: "د. انس العيدان",
-    specialization: "Cardiology",
+    specialization: "Proctologist",
     subspecialty: "Interventional Cardiology",
     bio: "Board-certified cardiologist focused on preventive care and minimally invasive procedures.",
     nationality: "Kuwaiti",
@@ -233,7 +233,7 @@ export type QAItem = {
 };
 
 export const qaItems: QAItem[] = [
-  { id: "q1", user: "Anas", question: "Is it normal to feel dizzy after starting blood pressure medication?", answer: { user: "Dr. Anas Al-Aidan", text: "Yes, mild dizziness is common in the first week. If it persists, contact your doctor." }, category: "Cardiology", time: "2h ago" },
+  { id: "q1", user: "Anas", question: "Is it normal to feel dizzy after starting blood pressure medication?", answer: { user: "Dr. Anas Al-Aidan", text: "Yes, mild dizziness is common in the first week. If it persists, contact your doctor." }, category: "Proctologist", time: "2h ago" },
   { id: "q2", user: "User#90234", question: "What's the safest acne treatment for sensitive skin?", answer: { user: "Dr. Omar Khalid", text: "Start with a gentle salicylic acid cleanser and a non-comedogenic moisturizer." }, category: "Dermatology", time: "5h ago" },
   { id: "q3", user: "User#11023", question: "When should my baby get their first vaccinations?", category: "Pediatrics", time: "1d ago" },
 ];
@@ -250,7 +250,7 @@ export type EventItem = {
 };
 
 export const events: EventItem[] = [
-  { id: "e1", title: "Middle East Cardiology Summit 2026", date: "May 22, 2026", city: "Dubai", country: "UAE", specialization: "Cardiology", type: "Conference", attendees: 1200 },
+  { id: "e1", title: "Middle East Cardiology Summit 2026", date: "May 22, 2026", city: "Dubai", country: "UAE", specialization: "Proctologist", type: "Conference", attendees: 1200 },
   { id: "e2", title: "Pediatric Vaccination Awareness Day", date: "May 18, 2026", city: "Cairo", country: "Egypt", specialization: "Pediatrics", type: "Campaign", attendees: 350 },
   { id: "e3", title: "Advanced Dermatology Workshop", date: "Jun 04, 2026", city: "Amman", country: "Jordan", specialization: "Dermatology", type: "Workshop", attendees: 80 },
   { id: "e4", title: "Mental Health Webinar: Anxiety in Youth", date: "May 30, 2026", city: "Online", country: "Global", specialization: "Psychiatry", type: "Webinar", attendees: 2400 },
