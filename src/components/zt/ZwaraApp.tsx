@@ -11,6 +11,7 @@ import { DoctorAvatar } from "./Avatar";
 import { MobileShell } from "./MobileShell";
 import { toast } from "sonner";
 import { useI18n } from "@/lib/i18n";
+import logo from "@/assets/logo.png";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   HeartPulse, Sparkles, Brain, Baby, Smile, Bone, Eye, BrainCog,
@@ -237,9 +238,12 @@ function HomeTab({
           <button onClick={onOpenMenu} className="p-2 -ms-2 rounded-xl hover:bg-card/60">
             <Menu className="w-6 h-6 text-foreground" />
           </button>
-          <div className="text-center">
-            <p className="text-[11px] text-muted-foreground">{t("home.welcomeBack")}</p>
-            <p className="text-sm font-semibold">{userTag}</p>
+          <div className="flex items-center gap-2">
+            <img src={logo} alt="Zwara Tabeya" className="w-9 h-9 object-contain" />
+            <div className="text-center">
+              <p className="text-[11px] text-muted-foreground">{t("home.welcomeBack")}</p>
+              <p className="text-sm font-semibold">{userTag}</p>
+            </div>
           </div>
           <button className="p-2 -me-2 rounded-xl hover:bg-card/60 relative">
             <Bell className="w-6 h-6 text-foreground" />
@@ -690,7 +694,10 @@ function AwarenessTab({ onOpenMenu, userTag }: { onOpenMenu: () => void; userTag
       <header className="px-5 pt-3 pb-4 bg-gradient-hero">
         <div className="flex items-center justify-between mb-3">
           <button onClick={onOpenMenu} className="p-2 -ms-2"><Menu className="w-6 h-6" /></button>
-          <h1 className="font-bold">{t("aw.title")}</h1>
+          <div className="flex items-center gap-2">
+            <img src={logo} alt="Zwara Tabeya" className="w-7 h-7 object-contain" />
+            <h1 className="font-bold">{t("aw.title")}</h1>
+          </div>
           <div className="w-10" />
         </div>
         <div className="flex items-center gap-2 bg-card p-1 rounded-xl border border-border">
@@ -806,7 +813,10 @@ function EventsTab({ onOpenMenu }: { onOpenMenu: () => void }) {
       <header className="px-5 pt-3 pb-4 bg-gradient-hero">
         <div className="flex items-center justify-between mb-3">
           <button onClick={onOpenMenu} className="p-2 -ms-2"><Menu className="w-6 h-6" /></button>
-          <h1 className="font-bold">{t("ev.title")}</h1>
+          <div className="flex items-center gap-2">
+            <img src={logo} alt="Zwara Tabeya" className="w-7 h-7 object-contain" />
+            <h1 className="font-bold">{t("ev.title")}</h1>
+          </div>
           <button className="p-2 -me-2"><Filter className="w-5 h-5" /></button>
         </div>
         <p className="text-sm text-muted-foreground">{t("ev.subtitle")}</p>
@@ -994,7 +1004,8 @@ function SideMenu({
           />
           <MenuItem icon={LifeBuoy} label={t("menu.help")} onClick={() => onNav({ name: "help" })} />
         </nav>
-        <div className="p-4 border-t border-border text-center">
+        <div className="p-4 border-t border-border flex flex-col items-center text-center">
+          <img src={logo} alt="Zwara Tabeya" className="w-12 h-12 object-contain mb-1" />
           <p className="text-sm font-bold text-primary">Zwara Tabeya</p>
           <p className="text-[10px] text-muted-foreground">{t("menu.tagline")}</p>
         </div>
