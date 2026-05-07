@@ -266,7 +266,7 @@ const ar: Dict = {
   "spec.psych": "الطب النفسي",
   "country.All": "الكل",
   "country.UAE": "الإمارات",
-  "country.Egypt": "مصر",
+  "country.Egypt": "لندن",
   "country.Jordan": "الأردن",
   "country.Qatar": "قطر",
   "country.Lebanon": "لبنان",
