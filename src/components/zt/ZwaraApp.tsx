@@ -458,7 +458,7 @@ function DoctorScreen({ doctor, onBack, onBook }: { doctor: Doctor; onBack: () =
                   ))}
                 </div>
               </div>
-              <p className="text-sm text-muted-foreground leading-relaxed">{r.text}</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">{lang === "ar" ? r.textAr : r.text}</p>
             </div>
           ))}
         </div>
