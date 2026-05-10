@@ -705,7 +705,7 @@ function OtpScreen({ phone, onBack, onVerified }: { phone: string; onBack: () =>
 
 /* ---------------- AWARENESS ---------------- */
 function AwarenessTab({ onOpenMenu, userTag }: { onOpenMenu: () => void; userTag: string }) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const [section, setSection] = useState<"videos" | "qa">("videos");
   const [cat, setCat] = useState<"All" | "Awareness" | "Documentaries" | "Campaigns">("All");
   const filtered = videos.filter((v) => cat === "All" || v.category === cat);
