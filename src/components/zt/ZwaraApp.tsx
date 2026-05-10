@@ -112,9 +112,11 @@ export function ZwaraApp() {
           <DoctorScreen
             doctor={doctor}
             onBack={() => setScreen({ name: "tabs" })}
-            onBook={(slot) => {
-              if (isGuest) setScreen({ name: "register" });
-              else setScreen({ name: "booking", id: doctor.id, slot });
+             onBook={(slot) => {
+              if (isGuest) {
+                setPendingBooking({ id: doctor.id, slot });
+                setScreen({ name: "register" });
+              } else setScreen({ name: "booking", id: doctor.id, slot });
             }}
           />
         )}
