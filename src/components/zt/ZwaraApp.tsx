@@ -143,7 +143,7 @@ export function ZwaraApp() {
         {screen.name === "register" && (
           <RegisterScreen
             onBack={() => setScreen({ name: "tabs" })}
-            onSubmit={(phone) => setScreen({ name: "otp", phone })}
+            onSubmit={(phone, _fullName) => setScreen({ name: "otp", phone })}
           />
         )}
         {screen.name === "otp" && (
