@@ -234,15 +234,18 @@ export type QAItem = {
   id: string;
   user: string;
   question: string;
-  answer?: { user: string; text: string };
+  questionAr: string;
+  answer?: { user: string; userAr: string; text: string; textAr: string };
   category: string;
+  categoryAr: string;
   time: string;
+  timeAr: string;
 };
 
 export const qaItems: QAItem[] = [
-  { id: "q1", user: "Anas", question: "Is it normal to feel dizzy after starting blood pressure medication?", answer: { user: "Dr. Anas Al-Aidan", text: "Yes, mild dizziness is common in the first week. If it persists, contact your doctor." }, category: "Proctologist", time: "2h ago" },
-  { id: "q2", user: "User#90234", question: "What's the safest acne treatment for sensitive skin?", answer: { user: "Dr. Omar Khalid", text: "Start with a gentle salicylic acid cleanser and a non-comedogenic moisturizer." }, category: "Dermatology", time: "5h ago" },
-  { id: "q3", user: "User#11023", question: "When should my baby get their first vaccinations?", category: "Pediatrics", time: "1d ago" },
+  { id: "q1", user: "Anas", question: "Is it normal to feel dizzy after starting blood pressure medication?", questionAr: "هل من الطبيعي الشعور بالدوار بعد البدء بدواء ضغط الدم؟", answer: { user: "Dr. Anas Al-Aidan", userAr: "د. أنس العيدان", text: "Yes, mild dizziness is common in the first week. If it persists, contact your doctor.", textAr: "نعم، الدوار الخفيف شائع في الأسبوع الأول. إذا استمر، تواصل مع طبيبك." }, category: "Proctologist", categoryAr: "جراحة القولون والمستقيم", time: "2h ago", timeAr: "قبل ساعتين" },
+  { id: "q2", user: "User#90234", question: "What's the safest acne treatment for sensitive skin?", questionAr: "ما هو أأمن علاج لحب الشباب للبشرة الحساسة؟", answer: { user: "Dr. Omar Khalid", userAr: "د. عمر خالد", text: "Start with a gentle salicylic acid cleanser and a non-comedogenic moisturizer.", textAr: "ابدأ بمنظف لطيف يحتوي على حمض الساليسيليك ومرطب لا يسبب انسداد المسام." }, category: "Dermatology", categoryAr: "الجلدية", time: "5h ago", timeAr: "قبل 5 ساعات" },
+  { id: "q3", user: "User#11023", question: "When should my baby get their first vaccinations?", questionAr: "متى يجب أن يحصل طفلي على أول تطعيماته؟", category: "Pediatrics", categoryAr: "طب الأطفال", time: "1d ago", timeAr: "قبل يوم" },
 ];
 
 export type EventItem = {
