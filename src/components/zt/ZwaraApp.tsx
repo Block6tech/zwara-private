@@ -76,6 +76,7 @@ export function ZwaraApp() {
     { id: "b-1", doctorId: "d1", slot: "Last Mon 11:00 AM", status: "Completed", createdAt: "5d ago" },
   ]);
   const [userTag] = useState("Anas");
+  const [pendingBooking, setPendingBooking] = useState<{ id: string; slot: string } | null>(null);
 
   const doctor = screen.name === "doctor" || screen.name === "booking"
     ? doctors.find((d) => d.id === (screen as { id: string }).id) ?? null
