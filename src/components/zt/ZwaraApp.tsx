@@ -143,7 +143,7 @@ export function ZwaraApp() {
         {screen.name === "register" && (
           <RegisterScreen
             onBack={() => setScreen({ name: "tabs" })}
-            onSubmit={(phone) => setScreen({ name: "otp", phone })}
+            onSubmit={(phone, _fullName) => setScreen({ name: "otp", phone })}
           />
         )}
         {screen.name === "otp" && (
@@ -601,9 +601,11 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 /* ---------------- REGISTER + OTP ---------------- */
-function RegisterScreen({ onBack, onSubmit }: { onBack: () => void; onSubmit: (phone: string) => void }) {
+function RegisterScreen({ onBack, onSubmit }: { onBack: () => void; onSubmit: (phone: string, fullName: string) => void }) {
   const { t } = useI18n();
   const [phone, setPhone] = useState("");
+  const [fullName, setFullName] = useState("");
+  const nameValid = fullName.trim().length >= 2 && fullName.trim().length <= 80;
   return (
     <div className="flex-1 overflow-y-auto px-5 pt-2">
       <button onClick={onBack} className="p-2 -ms-2 rounded-xl"><BackIcon className="w-5 h-5" /></button>
@@ -615,6 +617,18 @@ function RegisterScreen({ onBack, onSubmit }: { onBack: () => void; onSubmit: (p
         <p className="text-sm text-muted-foreground mt-1">{t("register.subtitle")}</p>
       </div>
       <div className="mt-6">
+        <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("register.fullName")}</label>
+        <div className="mt-2 flex items-center gap-2 p-3 rounded-2xl bg-card border border-border focus-within:border-primary">
+          <input
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value.slice(0, 80))}
+            placeholder={t("register.fullNamePlaceholder")}
+            maxLength={80}
+            className="flex-1 bg-transparent outline-none text-sm"
+          />
+        </div>
+      </div>
+      <div className="mt-4">
         <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("register.phone")}</label>
         <div className="mt-2 flex items-center gap-2 p-3 rounded-2xl bg-card border border-border focus-within:border-primary" dir="ltr">
           <span className="text-sm font-semibold">+965</span>
@@ -628,8 +642,8 @@ function RegisterScreen({ onBack, onSubmit }: { onBack: () => void; onSubmit: (p
         </div>
       </div>
       <button
-        disabled={phone.length < 10}
-        onClick={() => onSubmit(phone)}
+        disabled={phone.length < 10 || !nameValid}
+        onClick={() => onSubmit(phone, fullName.trim())}
         className="w-full mt-6 py-3.5 rounded-2xl bg-gradient-primary text-primary-foreground font-semibold shadow-card disabled:opacity-40"
       >
         {t("register.send")}
