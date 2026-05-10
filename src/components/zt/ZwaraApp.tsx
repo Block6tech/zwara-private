@@ -153,7 +153,13 @@ export function ZwaraApp() {
             onVerified={() => {
               setIsGuest(false);
               toast.success(t("otp.welcome"));
-              setScreen({ name: "tabs" });
+              if (pendingBooking) {
+                const pb = pendingBooking;
+                setPendingBooking(null);
+                setScreen({ name: "booking", id: pb.id, slot: pb.slot });
+              } else {
+                setScreen({ name: "tabs" });
+              }
             }}
           />
         )}
