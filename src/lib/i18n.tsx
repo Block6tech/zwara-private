@@ -61,8 +61,10 @@ const en: Dict = {
   "booking.sentDesc": "You'll be notified once reviewed.",
   // Register / OTP
   "register.title": "Continue as patient",
-  "register.subtitle": "Enter your phone number — we'll send a one-time code to verify.",
+  "register.subtitle": "Enter your full name and phone number — we'll send a one-time code to verify.",
   "register.phone": "Phone number",
+  "register.fullName": "Full name",
+  "register.fullNamePlaceholder": "e.g. Anas Al-Ali",
   "register.send": "Send code",
   "register.terms": "By continuing you agree to Zwara Tabeya's Terms & Privacy.",
   "otp.title": "Verify your number",
