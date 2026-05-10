@@ -76,6 +76,7 @@ export function ZwaraApp() {
     { id: "b-1", doctorId: "d1", slot: "Last Mon 11:00 AM", status: "Completed", createdAt: "5d ago" },
   ]);
   const [userTag] = useState("Anas");
+  const [pendingBooking, setPendingBooking] = useState<{ id: string; slot: string } | null>(null);
 
   const doctor = screen.name === "doctor" || screen.name === "booking"
     ? doctors.find((d) => d.id === (screen as { id: string }).id) ?? null
@@ -112,9 +113,11 @@ export function ZwaraApp() {
           <DoctorScreen
             doctor={doctor}
             onBack={() => setScreen({ name: "tabs" })}
-            onBook={(slot) => {
-              if (isGuest) setScreen({ name: "register" });
-              else setScreen({ name: "booking", id: doctor.id, slot });
+             onBook={(slot) => {
+              if (isGuest) {
+                setPendingBooking({ id: doctor.id, slot });
+                setScreen({ name: "register" });
+              } else setScreen({ name: "booking", id: doctor.id, slot });
             }}
           />
         )}
@@ -150,7 +153,13 @@ export function ZwaraApp() {
             onVerified={() => {
               setIsGuest(false);
               toast.success(t("otp.welcome"));
-              setScreen({ name: "tabs" });
+              if (pendingBooking) {
+                const pb = pendingBooking;
+                setPendingBooking(null);
+                setScreen({ name: "booking", id: pb.id, slot: pb.slot });
+              } else {
+                setScreen({ name: "tabs" });
+              }
             }}
           />
         )}
