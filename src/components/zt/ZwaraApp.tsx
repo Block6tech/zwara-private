@@ -705,7 +705,7 @@ function OtpScreen({ phone, onBack, onVerified }: { phone: string; onBack: () =>
 
 /* ---------------- AWARENESS ---------------- */
 function AwarenessTab({ onOpenMenu, userTag }: { onOpenMenu: () => void; userTag: string }) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const [section, setSection] = useState<"videos" | "qa">("videos");
   const [cat, setCat] = useState<"All" | "Awareness" | "Documentaries" | "Campaigns">("All");
   const filtered = videos.filter((v) => cat === "All" || v.category === cat);
@@ -792,13 +792,13 @@ function AwarenessTab({ onOpenMenu, userTag }: { onOpenMenu: () => void; userTag
             <div key={q.id} className="bg-card border border-border rounded-2xl p-4 shadow-soft">
               <div className="flex items-center justify-between mb-2 text-xs text-muted-foreground">
                 <span className="font-semibold text-foreground">{q.user}</span>
-                <span>{q.time} · {q.category}</span>
+                <span>{lang === "ar" ? q.timeAr : q.time} · {lang === "ar" ? q.categoryAr : q.category}</span>
               </div>
-              <p className="text-sm font-medium leading-relaxed">{q.question}</p>
+              <p className="text-sm font-medium leading-relaxed">{lang === "ar" ? q.questionAr : q.question}</p>
               {q.answer ? (
                 <div className="mt-3 p-3 rounded-xl bg-primary-soft border-s-2 border-primary">
-                  <p className="text-xs font-semibold text-primary">{q.answer.user}</p>
-                  <p className="text-sm mt-1 leading-relaxed">{q.answer.text}</p>
+                  <p className="text-xs font-semibold text-primary">{lang === "ar" ? q.answer.userAr : q.answer.user}</p>
+                  <p className="text-sm mt-1 leading-relaxed">{lang === "ar" ? q.answer.textAr : q.answer.text}</p>
                 </div>
               ) : (
                 <p className="text-xs text-muted-foreground mt-2 italic">{t("aw.awaiting")}</p>
