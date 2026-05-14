@@ -5,6 +5,15 @@ import path from 'path';
 const URL = 'http://localhost:8080/';
 const OUT = '/mnt/documents/zwara-tabeya-export.html';
 
+const DOCTORS = [
+  { id: 'd1', name: 'Dr. Anas Al-Aidan', ar: 'د. انس العيدان' },
+  { id: 'd2', name: 'Dr. Ali Alajmi', ar: 'د. علي العجمي' },
+  { id: 'd3', name: 'Dr. Sara Al-Otaibi', ar: 'د. سارة العتيبي' },
+  { id: 'd4', name: 'Dr. Khalid Al-Mutairi', ar: 'د. خالد المطيري' },
+  { id: 'd5', name: 'Dr. Fajer Al-Esa', ar: 'د. فجر العيسى' },
+  { id: 'd6', name: 'Dr. Hassan Al-Maktoum', ar: 'د. حسن آل مكتوم' },
+];
+
 const browser = await puppeteer.launch({
   executablePath: '/bin/chromium',
   args: ['--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage'],
@@ -17,11 +26,9 @@ const mimeFor = (url) => {
     '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg',
     '.webp': 'image/webp', '.gif': 'image/gif', '.svg': 'image/svg+xml',
     '.woff': 'font/woff', '.woff2': 'font/woff2', '.ttf': 'font/ttf',
-    '.otf': 'font/otf', '.ico': 'image/x-icon',
   })[ext] || 'application/octet-stream';
 };
 
-// cache fetched assets
 const assetCache = new Map();
 async function fetchAsDataUri(absUrl) {
   if (assetCache.has(absUrl)) return assetCache.get(absUrl);
@@ -41,11 +48,8 @@ async function fetchAsDataUri(absUrl) {
 }
 
 async function inlineCssUrls(cssText, baseUrl) {
-  // url(...) replacements
   const urlRe = /url\(\s*(['"]?)([^'")]+)\1\s*\)/g;
-  const parts = [];
-  let last = 0; let m;
-  const tasks = [];
+  const parts = []; let last = 0; let m; const tasks = [];
   while ((m = urlRe.exec(cssText)) !== null) {
     parts.push(cssText.slice(last, m.index));
     last = m.index + m[0].length;
@@ -53,7 +57,7 @@ async function inlineCssUrls(cssText, baseUrl) {
     if (ref.startsWith('data:')) { parts.push(`url(${ref})`); continue; }
     const abs = new URL(ref, baseUrl).href;
     const idx = parts.length;
-    parts.push(''); // placeholder
+    parts.push('');
     tasks.push(fetchAsDataUri(abs).then(d => { parts[idx] = `url(${d})`; }));
   }
   parts.push(cssText.slice(last));
@@ -61,27 +65,74 @@ async function inlineCssUrls(cssText, baseUrl) {
   return parts.join('');
 }
 
-async function snap(page, id) {
-  await new Promise(r => setTimeout(r, 800));
-  // Extract real applied CSS from document.styleSheets (handles Vite dev HMR-injected styles)
-  const liveCss = await page.evaluate(() => {
-    const out = [];
-    for (const ss of document.styleSheets) {
-      try {
-        const rules = [...ss.cssRules].map(r => r.cssText).join('\n');
-        out.push(rules);
-      } catch (e) { /* CORS-locked sheet, skip */ }
-    }
-    return out.join('\n');
-  });
-  const cssBlocks = [{ css: liveCss, base: URL }];
+let sharedCss = null;
 
-  // Collect all img srcs and replace on page with data URIs
+async function snap(page, id) {
+  await new Promise(r => setTimeout(r, 700));
+
+  // Inject data-goto attributes on known interactive elements
+  await page.evaluate((doctorList) => {
+    // Bottom nav buttons
+    const navBtns = document.querySelectorAll('nav.border-t button');
+    const navTargets = ['home', 'awareness', 'events'];
+    navBtns.forEach((b, i) => { if (navTargets[i]) b.dataset.goto = navTargets[i]; });
+
+    // Header menu icon
+    document.querySelectorAll('button').forEach(b => {
+      if (b.querySelector('svg.lucide-menu')) b.dataset.goto = 'menu';
+      if (b.querySelector('svg.lucide-arrow-left') && !b.dataset.goto) b.dataset.goto = '__back__';
+    });
+
+    // Doctor cards: any clickable element containing a doctor's name
+    const allClick = [...document.querySelectorAll('button, [role="button"], div')];
+    for (const d of doctorList) {
+      for (const el of allClick) {
+        // skip if too large (likely a wrapper)
+        if (!el.querySelector || !el.querySelector('img')) continue;
+        const txt = el.textContent || '';
+        if ((txt.includes(d.name) || txt.includes(d.ar)) && /KWD|د\.ك/.test(txt)) {
+          if (!el.dataset.goto) el.dataset.goto = 'doctor-' + d.id;
+        }
+      }
+    }
+
+    // Awareness sub-tabs (Videos / Q&A): two buttons inside awareness header
+    const awBtns = [...document.querySelectorAll('button')].filter(b => /^(Videos|Q&A|أسئلة|فيديوهات|الأسئلة)/.test((b.textContent||'').trim()));
+    if (awBtns.length === 2) {
+      const isVideos = (t) => /Videos|فيديوهات/.test(t);
+      awBtns.forEach(b => { b.dataset.goto = isVideos(b.textContent) ? 'awareness' : 'awareness-qa'; });
+    }
+
+    // "See all" -> All doctors
+    [...document.querySelectorAll('button')].forEach(b => {
+      const t = (b.textContent||'').trim();
+      if (/^(See all|عرض الكل)$/.test(t)) b.dataset.goto = 'allDoctors';
+    });
+
+    // Slot pills + Book + Confirm + auth flow
+    [...document.querySelectorAll('button')].forEach(b => {
+      const t = (b.textContent||'').trim();
+      if (b.dataset.goto) return;
+      if (/(AM|PM|ص|م)$/.test(t) && t.length < 12) {
+        // slot pill - mark as selectable (no nav)
+        b.dataset.gotoNoop = '1';
+      }
+      if (/^(Book|احجز)/.test(t)) b.dataset.goto = 'booking-current';
+      if (/Confirm booking|تأكيد الحجز/.test(t)) b.dataset.goto = 'bookings';
+      if (/Send code|إرسال الرمز/.test(t)) b.dataset.goto = 'otp';
+      if (/^(Verify|تحقق)/.test(t)) b.dataset.goto = 'home';
+      if (/Sign up|تسجيل الدخول|Sign in/.test(t)) b.dataset.goto = 'register';
+      if (/My bookings|حجوزاتي/.test(t)) b.dataset.goto = 'bookings';
+      if (/My profile|الملف الشخصي/.test(t)) b.dataset.goto = 'profile';
+      if (/Help|المساعدة|مساعدة/.test(t)) b.dataset.goto = 'help';
+    });
+  }, DOCTORS);
+
+  // Inline images
   const imgSrcs = await page.evaluate(() =>
     [...document.querySelectorAll('img')].map(i => i.currentSrc || i.src).filter(Boolean)
   );
-  const uniq = [...new Set(imgSrcs)];
-  for (const src of uniq) {
+  for (const src of [...new Set(imgSrcs)]) {
     if (src.startsWith('data:')) continue;
     const data = await fetchAsDataUri(src);
     await page.evaluate(({ from, to }) => {
@@ -92,34 +143,34 @@ async function snap(page, id) {
     }, { from: src, to: data });
   }
 
-  // Inline background-image url() found in inline style attributes
-  await page.evaluate(() => {
-    document.querySelectorAll('[style*="url("]').forEach(el => {
-      el.dataset._inlineStyle = el.getAttribute('style');
+  // Inline url() in inline style attrs
+  const inlineEls = await page.$$('[style*="url("]');
+  for (let i = 0; i < inlineEls.length; i++) {
+    const styleStr = await inlineEls[i].evaluate(el => el.getAttribute('style'));
+    const fixed = await inlineCssUrls(styleStr, URL);
+    await inlineEls[i].evaluate((el, s) => el.setAttribute('style', s), fixed);
+  }
+
+  // Capture CSS once (live styleSheets)
+  if (!sharedCss) {
+    const liveCss = await page.evaluate(() => {
+      const out = [];
+      for (const ss of document.styleSheets) {
+        try { out.push([...ss.cssRules].map(r => r.cssText).join('\n')); } catch {}
+      }
+      return out.join('\n');
     });
-  });
-  const inlineStyleEls = await page.evaluate(() => {
-    const out = [];
-    document.querySelectorAll('[data-_inline-style]').forEach((el, i) => {
-      el.setAttribute('data-_idx', String(i));
-      out.push(el.getAttribute('style'));
-    });
-    return out;
-  });
-  for (let i = 0; i < inlineStyleEls.length; i++) {
-    const newStyle = await inlineCssUrls(inlineStyleEls[i], URL);
-    await page.evaluate(({ idx, s }) => {
-      const el = document.querySelector(`[data-_idx="${idx}"]`);
-      if (el) { el.setAttribute('style', s); el.removeAttribute('data-_idx'); el.removeAttribute('data-_inline-style'); }
-    }, { idx: i, s: newStyle });
+    sharedCss = await inlineCssUrls(liveCss, URL);
   }
 
   const html = await page.evaluate(() => {
-    // strip <link rel=stylesheet> and <script> and existing <style>
     document.querySelectorAll('link[rel="stylesheet"],script,style').forEach(n => n.remove());
-    return document.documentElement.outerHTML;
+    // disable inputs to keep form snapshot
+    document.querySelectorAll('input,textarea').forEach(el => el.setAttribute('readonly', 'readonly'));
+    return document.body.innerHTML;
   });
-  return { id, html, cssBlocks };
+
+  return { id, html };
 }
 
 async function newPage() {
@@ -131,7 +182,6 @@ async function newPage() {
 }
 
 const states = [];
-
 async function runState(id, fn) {
   const p = await newPage();
   if (fn) await fn(p);
@@ -140,80 +190,85 @@ async function runState(id, fn) {
   console.log('captured', id);
 }
 
-await runState('home');
-await runState('awareness', async p => {
-  const btns = await p.$$('nav.border-t button');
-  await btns[1].click();
-});
-await runState('events', async p => {
-  const btns = await p.$$('nav.border-t button');
-  await btns[2].click();
-});
-await runState('menu', async p => {
+const clickMenu = async p => {
   await p.evaluate(() => {
     const b = [...document.querySelectorAll('button')].find(x => x.querySelector('svg.lucide-menu'));
     if (b) b.click();
   });
   await new Promise(r => setTimeout(r, 350));
-});
+};
 
-async function gotoDoctor(p) {
+await runState('home');
+await runState('awareness', async p => {
+  const b = await p.$$('nav.border-t button'); await b[1].click();
+});
+await runState('awareness-qa', async p => {
+  const b = await p.$$('nav.border-t button'); await b[1].click();
+  await new Promise(r => setTimeout(r, 200));
   await p.evaluate(() => {
-    const cards = [...document.querySelectorAll('button, [role="button"], div')]
-      .filter(el => el.querySelector('img') && el.textContent.includes('KWD'));
-    if (cards[0]) cards[0].click();
+    const btn = [...document.querySelectorAll('button')].find(b => /^(Q&A|الأسئلة|أسئلة)/.test((b.textContent||'').trim()));
+    if (btn) btn.click();
   });
+});
+await runState('events', async p => {
+  const b = await p.$$('nav.border-t button'); await b[2].click();
+});
+await runState('menu', clickMenu);
+
+// Per doctor screen + booking confirm screen
+async function gotoDoctor(p, doctorName) {
+  await p.evaluate((name) => {
+    const cards = [...document.querySelectorAll('button, [role="button"], div')]
+      .filter(el => el.querySelector && el.querySelector('img') && (el.textContent||'').includes(name));
+    if (cards[0]) cards[0].click();
+  }, doctorName);
   await p.waitForFunction(() =>
     document.body.innerText.includes('Available slots') ||
     document.body.innerText.includes('المواعيد المتاحة'), { timeout: 5000 }).catch(() => {});
 }
 
-await runState('doctor', gotoDoctor);
-await runState('booking', async p => {
-  await gotoDoctor(p);
-  await p.evaluate(() => {
-    const slot = [...document.querySelectorAll('button')].find(b => /(AM|PM|ص|م)$/.test(b.textContent.trim()));
-    if (slot) slot.click();
+for (const d of DOCTORS) {
+  await runState('doctor-' + d.id, async p => {
+    await gotoDoctor(p, d.name);
   });
-  await new Promise(r => setTimeout(r, 200));
-  await p.evaluate(() => {
-    const btn = [...document.querySelectorAll('button')].find(b => /^(Book|احجز)/.test(b.textContent.trim()));
-    if (btn) btn.click();
+  await runState('booking-' + d.id, async p => {
+    await gotoDoctor(p, d.name);
+    await p.evaluate(() => {
+      const slot = [...document.querySelectorAll('button')].find(b => /(AM|PM|ص|م)$/.test((b.textContent||'').trim()) && (b.textContent||'').length < 12);
+      if (slot) slot.click();
+    });
+    await new Promise(r => setTimeout(r, 200));
+    await p.evaluate(() => {
+      const btn = [...document.querySelectorAll('button')].find(b => /^(Book|احجز)/.test((b.textContent||'').trim()));
+      if (btn) btn.click();
+    });
+    await p.waitForFunction(() =>
+      document.body.innerText.includes('Confirm booking') ||
+      document.body.innerText.includes('تأكيد الحجز'), { timeout: 5000 }).catch(() => {});
   });
-  await p.waitForFunction(() =>
-    document.body.innerText.includes('Confirm booking') ||
-    document.body.innerText.includes('تأكيد الحجز'), { timeout: 5000 }).catch(() => {});
-});
+}
 
 await runState('allDoctors', async p => {
   await p.evaluate(() => {
-    const btn = [...document.querySelectorAll('button')].find(b => /See all|عرض الكل/.test(b.textContent.trim()));
+    const btn = [...document.querySelectorAll('button')].find(b => /^(See all|عرض الكل)$/.test((b.textContent||'').trim()));
     if (btn) btn.click();
   });
   await new Promise(r => setTimeout(r, 350));
 });
 
 await runState('register', async p => {
+  await clickMenu(p);
   await p.evaluate(() => {
-    const b = [...document.querySelectorAll('button')].find(x => x.querySelector('svg.lucide-menu'));
-    if (b) b.click();
-  });
-  await new Promise(r => setTimeout(r, 300));
-  await p.evaluate(() => {
-    const btn = [...document.querySelectorAll('button')].find(b => /Sign up|تسجيل الدخول/.test(b.textContent));
+    const btn = [...document.querySelectorAll('button')].find(b => /Sign up|تسجيل الدخول|Sign in/.test(b.textContent));
     if (btn) btn.click();
   });
   await new Promise(r => setTimeout(r, 350));
 });
 
 await runState('otp', async p => {
+  await clickMenu(p);
   await p.evaluate(() => {
-    const b = [...document.querySelectorAll('button')].find(x => x.querySelector('svg.lucide-menu'));
-    if (b) b.click();
-  });
-  await new Promise(r => setTimeout(r, 300));
-  await p.evaluate(() => {
-    const btn = [...document.querySelectorAll('button')].find(b => /Sign up|تسجيل الدخول/.test(b.textContent));
+    const btn = [...document.querySelectorAll('button')].find(b => /Sign up|تسجيل الدخول|Sign in/.test(b.textContent));
     if (btn) btn.click();
   });
   await new Promise(r => setTimeout(r, 300));
@@ -221,8 +276,7 @@ await runState('otp', async p => {
     const inputs = document.querySelectorAll('input');
     const set = (el, v) => {
       const setter = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(el), 'value').set;
-      setter.call(el, v);
-      el.dispatchEvent(new Event('input', { bubbles: true }));
+      setter.call(el, v); el.dispatchEvent(new Event('input', { bubbles: true }));
     };
     if (inputs[0]) set(inputs[0], 'Anas Al-Ali');
     if (inputs[1]) set(inputs[1], '+96512345678');
@@ -236,11 +290,7 @@ await runState('otp', async p => {
 });
 
 await runState('bookings', async p => {
-  await p.evaluate(() => {
-    const b = [...document.querySelectorAll('button')].find(x => x.querySelector('svg.lucide-menu'));
-    if (b) b.click();
-  });
-  await new Promise(r => setTimeout(r, 300));
+  await clickMenu(p);
   await p.evaluate(() => {
     const btn = [...document.querySelectorAll('button, a')].find(b => /My bookings|حجوزاتي/.test(b.textContent));
     if (btn) btn.click();
@@ -248,92 +298,95 @@ await runState('bookings', async p => {
   await new Promise(r => setTimeout(r, 350));
 });
 
+await runState('profile', async p => {
+  await clickMenu(p);
+  await p.evaluate(() => {
+    const btn = [...document.querySelectorAll('button, a')].find(b => /My profile|الملف الشخصي/.test(b.textContent));
+    if (btn) btn.click();
+  });
+  await new Promise(r => setTimeout(r, 350));
+});
+
+await runState('help', async p => {
+  await clickMenu(p);
+  await p.evaluate(() => {
+    const btn = [...document.querySelectorAll('button, a')].find(b => /Help|المساعدة|مساعدة/.test(b.textContent));
+    if (btn) btn.click();
+  });
+  await new Promise(r => setTimeout(r, 350));
+});
+
 await browser.close();
 
-// Combine. Use the first state's CSS blocks (they're identical for SPA).
-const allCss = states[0].cssBlocks;
-let inlinedCss = '';
-for (const { css, base } of allCss) {
-  inlinedCss += await inlineCssUrls(css, base) + '\n';
-}
+// Build router: each doctor card on doctor-X / home / allDoctors should also set
+// "current doctor" so a generic Book button maps to booking-{currentDoctor}.
 
-// Extract <body> contents for each state
-function extractBody(htmlDoc) {
-  const m = htmlDoc.match(/<body[^>]*>([\s\S]*)<\/body>/i);
-  return m ? m[1] : htmlDoc;
-}
-
-const screens = states.map(s => ({
-  id: s.id,
-  body: extractBody(s.html),
-}));
+const SCREEN_IDS = states.map(s => s.id);
 
 const NAV_JS = `
 (function(){
-  const order = ['home','awareness','events','menu','doctor','booking','allDoctors','register','otp','bookings'];
+  const screens = ${JSON.stringify(SCREEN_IDS)};
+  const history = ['home'];
+  let currentDoctor = 'd1';
+
   function show(id){
-    document.querySelectorAll('[data-screen]').forEach(el=>{
+    if (id === '__back__') { history.pop(); id = history[history.length-1] || 'home'; }
+    else if (id === 'booking-current') { id = 'booking-' + currentDoctor; }
+    if (id.startsWith('doctor-')) currentDoctor = id.slice(7);
+    if (!screens.includes(id)) { console.warn('no screen', id); return; }
+    if (history[history.length-1] !== id) history.push(id);
+    if (history.length > 50) history.shift();
+    document.querySelectorAll('[data-screen]').forEach(el => {
       el.style.display = el.dataset.screen === id ? '' : 'none';
     });
-    document.querySelectorAll('[data-nav-btn]').forEach(b=>{
+    document.querySelectorAll('[data-nav-btn]').forEach(b => {
       b.classList.toggle('active', b.dataset.navBtn === id);
     });
-    history.replaceState(null,'','#'+id);
-    window.scrollTo(0,0);
+    window.location.hash = id;
+    document.scrollingElement && (document.scrollingElement.scrollTop = 0);
   }
-  function resolveTarget(el){
-    while(el && el !== document.body){
-      const t = el.dataset && el.dataset.goto;
-      if (t) return t;
-      const txt = (el.textContent||'').trim();
-      // Header menu icon -> menu screen
-      if (el.tagName==='BUTTON' && el.querySelector && el.querySelector('svg.lucide-menu')) return 'menu';
-      if (el.tagName==='BUTTON' && el.querySelector && el.querySelector('svg.lucide-arrow-left')) return 'home';
-      if (el.tagName==='BUTTON'){
-        if (/^(Book|احجز)/.test(txt) && document.querySelector('[data-screen="booking"]')) return 'booking';
-        if (/Confirm booking|تأكيد الحجز/.test(txt)) return 'bookings';
-        if (/Send code|إرسال الرمز/.test(txt)) return 'otp';
-        if (/Verify|تحقق/.test(txt)) return 'home';
-        if (/Sign up|تسجيل الدخول/.test(txt)) return 'register';
-        if (/My bookings|حجوزاتي/.test(txt)) return 'bookings';
-        if (/See all|عرض الكل/.test(txt)) return 'allDoctors';
-      }
-      // doctor card detection
-      if (el.tagName === 'BUTTON' || el.getAttribute && el.getAttribute('role')==='button'){
-        if (el.querySelector && el.querySelector('img') && /KWD|د\\.ك/.test(el.textContent||'')) return 'doctor';
-      }
+  window.__show = show;
+
+  function findGoto(el){
+    while (el && el !== document.body) {
+      if (el.dataset && el.dataset.goto) return el.dataset.goto;
+      if (el.dataset && el.dataset.gotoNoop) return '__noop__';
       el = el.parentElement;
     }
     return null;
   }
-  document.addEventListener('click', e=>{
-    const t = resolveTarget(e.target);
-    if (t){
-      e.preventDefault();
-      e.stopPropagation();
+  document.addEventListener('click', e => {
+    const t = findGoto(e.target);
+    if (t) {
+      e.preventDefault(); e.stopPropagation();
+      if (t === '__noop__') return; // slot pill: do nothing visible
       show(t);
     }
   }, true);
-  // Make inputs read-only to preserve snapshots
-  document.querySelectorAll('input,textarea').forEach(i=>{ try{ i.setAttribute('readonly','readonly'); }catch(_){} });
-  // initial
-  const init = (location.hash||'#home').slice(1);
-  show(order.includes(init)?init:'home');
-  window.__show = show;
+
+  // Hash entry
+  const initial = (location.hash || '#home').slice(1);
+  show(screens.includes(initial) ? initial : 'home');
 })();
 `;
 
+const TOOLBAR_GROUPS = [
+  ['home', 'awareness', 'awareness-qa', 'events', 'menu', 'allDoctors'],
+  ['register', 'otp', 'profile', 'bookings', 'help'],
+  DOCTORS.map(d => 'doctor-' + d.id),
+];
+
 const TOOLBAR = `
-<div id="proto-toolbar" style="position:fixed;top:8px;left:50%;transform:translateX(-50%);z-index:99999;background:#111;color:#fff;border-radius:999px;padding:6px 10px;display:flex;gap:4px;flex-wrap:wrap;font-family:system-ui,sans-serif;font-size:11px;box-shadow:0 6px 20px rgba(0,0,0,.25);max-width:95vw">
-  ${['home','awareness','events','menu','doctor','booking','allDoctors','register','otp','bookings'].map(id=>
-    `<button data-nav-btn="${id}" onclick="window.__show('${id}')" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:4px 10px;cursor:pointer;font:inherit">${id}</button>`
-  ).join('')}
+<div id="proto-toolbar" style="position:fixed;top:8px;left:50%;transform:translateX(-50%);z-index:99999;background:#111;color:#fff;border-radius:14px;padding:6px 8px;display:flex;flex-direction:column;gap:4px;font-family:system-ui,sans-serif;font-size:11px;box-shadow:0 6px 20px rgba(0,0,0,.3);max-width:96vw">
+  ${TOOLBAR_GROUPS.map(grp => `<div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:center">${grp.map(id =>
+    `<button data-nav-btn="${id}" onclick="window.__show('${id}')" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:3px 8px;cursor:pointer;font:inherit;white-space:nowrap">${id}</button>`
+  ).join('')}</div>`).join('')}
 </div>
 <style>#proto-toolbar button.active{background:#fff;color:#111;border-color:#fff}</style>
 `;
 
-const screensHtml = screens.map(s =>
-  `<div data-screen="${s.id}" style="display:none">${s.body}</div>`
+const screensHtml = states.map(s =>
+  `<div data-screen="${s.id}" style="display:none">${s.html}</div>`
 ).join('\n');
 
 const finalHtml = `<!DOCTYPE html>
@@ -343,9 +396,10 @@ const finalHtml = `<!DOCTYPE html>
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Zwara Tabeya — Interactive Prototype</title>
 <style>
-${inlinedCss}
+${sharedCss}
 html,body{margin:0;background:#f3f4f6}
 [data-screen]{min-height:100vh}
+[data-goto]{cursor:pointer}
 </style>
 </head>
 <body>
@@ -356,6 +410,5 @@ ${screensHtml}
 </html>`;
 
 fs.writeFileSync(OUT, finalHtml);
-const sizeMb = (fs.statSync(OUT).size / 1024 / 1024).toFixed(2);
-console.log('WROTE', OUT, sizeMb + ' MB');
-console.log('assets cached:', assetCache.size);
+console.log('WROTE', OUT, (fs.statSync(OUT).size / 1024 / 1024).toFixed(2) + ' MB');
+console.log('screens:', SCREEN_IDS.length, 'assets:', assetCache.size);
