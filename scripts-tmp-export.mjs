@@ -135,9 +135,9 @@ async function snap(page, id) {
         b.dataset.goto = 'booking-current';
         b.removeAttribute('disabled');
       }
-      if (/Confirm booking|تأكيد الحجز/.test(t)) b.dataset.goto = 'bookings';
+      if (/Confirm booking|تأكيد الحجز/.test(t)) b.dataset.goto = 'register';
       if (/Send code|إرسال الرمز/.test(t)) b.dataset.goto = 'otp';
-      if (/^(Verify|تحقق)/.test(t)) b.dataset.goto = 'home';
+      if (/^(Verify|تحقق)/.test(t)) b.dataset.goto = 'bookings';
       if (/Sign up|تسجيل الدخول|Sign in/.test(t)) b.dataset.goto = 'register';
       if (/My bookings|حجوزاتي/.test(t)) b.dataset.goto = 'bookings';
       if (/My profile|الملف الشخصي/.test(t)) b.dataset.goto = 'profile';
