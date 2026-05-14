@@ -228,8 +228,8 @@ export function ZwaraApp() {
 
 /* ---------------- HOME ---------------- */
 function HomeTab({
-  onOpenDoctor, onOpenMenu, userTag, bookings,
-}: { onOpenDoctor: (id: string) => void; onOpenMenu: () => void; userTag: string; bookings: Booking[] }) {
+  onOpenDoctor, onOpenMenu, onSeeAllDoctors, userTag, bookings,
+}: { onOpenDoctor: (id: string) => void; onOpenMenu: () => void; onSeeAllDoctors: () => void; userTag: string; bookings: Booking[] }) {
   const { t, lang } = useI18n();
   const [query, setQuery] = useState("");
   const [activeSpec, setActiveSpec] = useState<string | null>(null);
@@ -301,7 +301,7 @@ function HomeTab({
       <section className="px-5 mt-6">
         <div className="flex items-center justify-between mb-3">
           <h2 className="font-semibold">{t("home.specialties")}</h2>
-          <button className="text-xs text-primary font-medium">{t("common.seeAll")}</button>
+          <button onClick={onSeeAllDoctors} className="text-xs text-primary font-medium hover:underline">{t("common.seeAll")}</button>
         </div>
         <div className="grid grid-cols-4 gap-3">
           {specialties.slice(0, 8).map((s) => {
