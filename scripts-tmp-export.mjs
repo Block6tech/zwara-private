@@ -386,6 +386,10 @@ const NAV_JS = `
       const screen = hit.el.closest('[data-screen]');
       if (screen) screen.querySelectorAll('[data-slot-pill]').forEach(p => p.classList.remove('proto-slot-active'));
       hit.el.classList.add('proto-slot-active');
+      if (screen) screen.querySelectorAll('[data-goto="booking-current"]').forEach(btn => {
+        btn.removeAttribute('disabled');
+        if (/Select a slot|اختر/.test((btn.textContent || '').trim())) btn.textContent = document.documentElement.dir === 'rtl' ? 'احجز الموعد' : 'Book appointment';
+      });
       return;
     }
     if (hit.val === 'booking-current') {
@@ -439,6 +443,7 @@ ${sharedCss}
 html,body{margin:0;background:#f3f4f6}
 [data-screen]{min-height:100vh}
 [data-goto],[data-slot-pill]{cursor:pointer}
+[data-goto="booking-current"]{pointer-events:auto !important;cursor:pointer !important}
 [data-slot-pill].proto-slot-active{background:#0ea5e9 !important;color:#fff !important;border-color:#0ea5e9 !important;box-shadow:0 0 0 2px rgba(14,165,233,.25)}
 [data-slot-pill].proto-slot-hint{animation:protoPulse .4s ease 2}
 @keyframes protoPulse{50%{background:#fee2e2;border-color:#ef4444}}
