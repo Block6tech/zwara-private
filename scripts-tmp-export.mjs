@@ -135,9 +135,9 @@ async function snap(page, id) {
         b.dataset.goto = 'booking-current';
         b.removeAttribute('disabled');
       }
-      if (/Confirm booking|تأكيد الحجز/.test(t)) b.dataset.goto = 'bookings';
+      if (/Confirm booking|تأكيد الحجز/.test(t)) b.dataset.goto = 'register';
       if (/Send code|إرسال الرمز/.test(t)) b.dataset.goto = 'otp';
-      if (/^(Verify|تحقق)/.test(t)) b.dataset.goto = 'home';
+      if (/^(Verify|تحقق)/.test(t)) b.dataset.goto = 'bookings';
       if (/Sign up|تسجيل الدخول|Sign in/.test(t)) b.dataset.goto = 'register';
       if (/My bookings|حجوزاتي/.test(t)) b.dataset.goto = 'bookings';
       if (/My profile|الملف الشخصي/.test(t)) b.dataset.goto = 'profile';
@@ -254,14 +254,55 @@ for (const d of DOCTORS) {
     await gotoDoctor(p, d.name);
   });
   await runState('booking-' + d.id, async p => {
-    await gotoDoctor(p, d.name);
+    // Auth first (guest would be routed to register from doctor.Book)
+    await clickMenu(p);
     await p.evaluate(() => {
-      const slot = [...document.querySelectorAll('button')].find(b => /(AM|PM|ص|م)$/.test((b.textContent||'').trim()) && (b.textContent||'').length < 12);
-      if (slot) slot.click();
+      const btn = [...document.querySelectorAll('button')].find(b => /Sign up|تسجيل الدخول|Sign in/.test(b.textContent));
+      if (btn) btn.click();
+    });
+    await new Promise(r => setTimeout(r, 300));
+    await p.evaluate(() => {
+      const inputs = document.querySelectorAll('input');
+      const set = (el, v) => {
+        const setter = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(el), 'value').set;
+        setter.call(el, v); el.dispatchEvent(new Event('input', { bubbles: true }));
+      };
+      if (inputs[0]) set(inputs[0], 'Anas Al-Ali');
+      if (inputs[1]) set(inputs[1], '+96512345678');
     });
     await new Promise(r => setTimeout(r, 200));
     await p.evaluate(() => {
-      const btn = [...document.querySelectorAll('button')].find(b => /^(Book|احجز)/.test((b.textContent||'').trim()));
+      const btn = [...document.querySelectorAll('button')].find(b => /Send code|إرسال الرمز/.test(b.textContent));
+      if (btn) btn.click();
+    });
+    await new Promise(r => setTimeout(r, 400));
+    // Fill OTP inputs
+    await p.evaluate(() => {
+      const inputs = document.querySelectorAll('input');
+      const set = (el, v) => {
+        const setter = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(el), 'value').set;
+        setter.call(el, v); el.dispatchEvent(new Event('input', { bubbles: true }));
+      };
+      inputs.forEach(i => set(i, '1'));
+    });
+    await new Promise(r => setTimeout(r, 200));
+    await p.evaluate(() => {
+      const btn = [...document.querySelectorAll('button')].find(b => /^(Verify|تحقق)/.test((b.textContent||'').trim()));
+      if (btn) btn.click();
+    });
+    await new Promise(r => setTimeout(r, 500));
+    // Now navigate to doctor
+    await gotoDoctor(p, d.name);
+    await p.evaluate(() => {
+      const slot = [...document.querySelectorAll('button')].find(b => {
+        const t = (b.textContent||'').trim();
+        return /(AM|PM|ص|م)$/.test(t) && t.length <= 22 && !/Select|اختر/.test(t);
+      });
+      if (slot) slot.click();
+    });
+    await new Promise(r => setTimeout(r, 400));
+    await p.evaluate(() => {
+      const btn = [...document.querySelectorAll('button')].find(b => /^(Book appointment|احجز الموعد|Book )/.test((b.textContent||'').trim()));
       if (btn) btn.click();
     });
     await p.waitForFunction(() =>
