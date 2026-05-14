@@ -83,15 +83,15 @@ async function snap(page, id) {
       if (b.querySelector('svg.lucide-arrow-left') && !b.dataset.goto) b.dataset.goto = '__back__';
     });
 
-    // Doctor cards: any clickable element containing a doctor's name
-    const allClick = [...document.querySelectorAll('button, [role="button"], div')];
+    // Doctor cards: <button> elements containing a doctor's name + price (KWD/د.ك)
+    const btns = [...document.querySelectorAll('button')];
     for (const d of doctorList) {
-      for (const el of allClick) {
-        // skip if too large (likely a wrapper)
-        if (!el.querySelector || !el.querySelector('img')) continue;
+      for (const el of btns) {
+        if (el.dataset.goto) continue;
         const txt = el.textContent || '';
         if ((txt.includes(d.name) || txt.includes(d.ar)) && /KWD|د\.ك/.test(txt)) {
-          if (!el.dataset.goto) el.dataset.goto = 'doctor-' + d.id;
+          el.dataset.goto = 'doctor-' + d.id;
+          break;
         }
       }
     }
