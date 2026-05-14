@@ -26,7 +26,8 @@ type Screen =
   | { name: "otp"; phone: string }
   | { name: "bookings" }
   | { name: "profile" }
-  | { name: "help" };
+  | { name: "help" }
+  | { name: "allDoctors" };
 
 type BookingStatus = "Pending" | "Approved" | "Rescheduled" | "Rejected" | "Completed" | "Cancelled";
 type Booking = { id: string; doctorId: string; slot: string; status: BookingStatus; createdAt: string };
@@ -100,6 +101,7 @@ export function ZwaraApp() {
               <HomeTab
                 onOpenDoctor={(id) => setScreen({ name: "doctor", id })}
                 onOpenMenu={() => setMenuOpen(true)}
+                onSeeAllDoctors={() => setScreen({ name: "allDoctors" })}
                 userTag={userTag}
                 bookings={bookings}
               />
@@ -170,6 +172,12 @@ export function ZwaraApp() {
           <ProfileScreen userTag={userTag} isGuest={isGuest} onBack={() => setScreen({ name: "tabs" })} />
         )}
         {screen.name === "help" && <HelpScreen onBack={() => setScreen({ name: "tabs" })} />}
+        {screen.name === "allDoctors" && (
+          <AllDoctorsScreen
+            onBack={() => setScreen({ name: "tabs" })}
+            onOpenDoctor={(id) => setScreen({ name: "doctor", id })}
+          />
+        )}
       </div>
 
       {screen.name === "tabs" && (
@@ -220,8 +228,8 @@ export function ZwaraApp() {
 
 /* ---------------- HOME ---------------- */
 function HomeTab({
-  onOpenDoctor, onOpenMenu, userTag, bookings,
-}: { onOpenDoctor: (id: string) => void; onOpenMenu: () => void; userTag: string; bookings: Booking[] }) {
+  onOpenDoctor, onOpenMenu, onSeeAllDoctors, userTag, bookings,
+}: { onOpenDoctor: (id: string) => void; onOpenMenu: () => void; onSeeAllDoctors: () => void; userTag: string; bookings: Booking[] }) {
   const { t, lang } = useI18n();
   const [query, setQuery] = useState("");
   const [activeSpec, setActiveSpec] = useState<string | null>(null);
@@ -293,7 +301,7 @@ function HomeTab({
       <section className="px-5 mt-6">
         <div className="flex items-center justify-between mb-3">
           <h2 className="font-semibold">{t("home.specialties")}</h2>
-          <button className="text-xs text-primary font-medium">{t("common.seeAll")}</button>
+          <button onClick={onSeeAllDoctors} className="text-xs text-primary font-medium hover:underline">{t("common.seeAll")}</button>
         </div>
         <div className="grid grid-cols-4 gap-3">
           {specialties.slice(0, 8).map((s) => {
@@ -359,6 +367,116 @@ function DoctorCard({ doctor, onClick }: { doctor: Doctor; onClick: () => void }
           <span className="ms-auto font-semibold text-foreground">{doctor.fee} {t("common.kwd")}</span>
         </div>
       </div>
+    </button>
+  );
+}
+
+/* ---------------- ALL DOCTORS ---------------- */
+function AllDoctorsScreen({ onBack, onOpenDoctor }: { onBack: () => void; onOpenDoctor: (id: string) => void }) {
+  const { t } = useI18n();
+  const [query, setQuery] = useState("");
+  const [activeSpec, setActiveSpec] = useState<string | null>(null);
+  const cities = useMemo(() => Array.from(new Set(doctors.map((d) => d.city))), []);
+  const [activeCity, setActiveCity] = useState<string | null>(null);
+
+  const filtered = useMemo(
+    () =>
+      doctors.filter(
+        (d) =>
+          (!activeSpec || d.specialtyId === activeSpec) &&
+          (!activeCity || d.city === activeCity) &&
+          (query === "" ||
+            d.name.toLowerCase().includes(query.toLowerCase()) ||
+            d.nameAr.includes(query) ||
+            d.specialization.toLowerCase().includes(query.toLowerCase())),
+      ),
+    [query, activeSpec, activeCity],
+  );
+
+  return (
+    <div className="flex-1 overflow-y-auto pb-4">
+      <header className="px-5 pt-2 pb-4 bg-gradient-hero sticky top-0 z-10">
+        <div className="flex items-center gap-2 mb-3">
+          <button onClick={onBack} className="p-2 -ms-2 rounded-xl hover:bg-card/60">
+            <BackIcon className="w-5 h-5" />
+          </button>
+          <h1 className="text-lg font-bold">{t("doctors.allTitle", "All doctors")}</h1>
+        </div>
+        <div className="relative">
+          <Search className="absolute start-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t("home.search")}
+            className="w-full ps-10 pe-4 py-3 rounded-2xl bg-card border border-border text-sm shadow-soft outline-none focus:border-primary transition-colors"
+          />
+        </div>
+
+        <div className="mt-3">
+          <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">
+            {t("common.specialty")}
+          </p>
+          <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+            <FilterPill label={t("common.all")} active={activeSpec === null} onClick={() => setActiveSpec(null)} />
+            {specialties.map((s) => (
+              <FilterPill
+                key={s.id}
+                label={t(`spec.${s.id}`)}
+                active={activeSpec === s.id}
+                onClick={() => setActiveSpec(activeSpec === s.id ? null : s.id)}
+              />
+            ))}
+          </div>
+        </div>
+
+        {cities.length > 1 && (
+          <div className="mt-2">
+            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">
+              {t("doctors.city", "City")}
+            </p>
+            <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+              <FilterPill label={t("common.all")} active={activeCity === null} onClick={() => setActiveCity(null)} />
+              {cities.map((c) => (
+                <FilterPill
+                  key={c}
+                  label={c}
+                  active={activeCity === c}
+                  onClick={() => setActiveCity(activeCity === c ? null : c)}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+      </header>
+
+      <section className="px-5 mt-4">
+        <p className="text-xs text-muted-foreground mb-3">
+          {filtered.length} {t("common.results")}
+        </p>
+        <div className="space-y-3">
+          {filtered.map((d) => (
+            <DoctorCard key={d.id} doctor={d} onClick={() => onOpenDoctor(d.id)} />
+          ))}
+          {filtered.length === 0 && (
+            <div className="text-center py-10 text-sm text-muted-foreground">{t("home.noResults")}</div>
+          )}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function FilterPill({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+        active
+          ? "bg-primary text-primary-foreground border-primary"
+          : "bg-card text-foreground border-border hover:border-primary/40"
+      }`}
+    >
+      {label}
     </button>
   );
 }

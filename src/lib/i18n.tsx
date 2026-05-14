@@ -30,6 +30,8 @@ const en: Dict = {
   "home.topDoctors": "Doctors nearby you",
   "home.noResults": "No doctors match your search.",
   "home.years": "y",
+  "doctors.allTitle": "All doctors",
+  "doctors.city": "City",
   // Doctor
   "doctor.about": "About",
   "doctor.reviews": "Reviews",
@@ -171,6 +173,8 @@ const ar: Dict = {
   "home.topDoctors": "الأطباء القريبون منك",
   "home.noResults": "لا يوجد أطباء مطابقون لبحثك.",
   "home.years": "سنة",
+  "doctors.allTitle": "كل الأطباء",
+  "doctors.city": "المدينة",
   "doctor.about": "نبذة",
   "doctor.reviews": "التقييمات",
   "doctor.experience": "الخبرة",
