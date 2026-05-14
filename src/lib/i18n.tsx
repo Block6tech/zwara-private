@@ -168,7 +168,7 @@ const ar: Dict = {
   "home.search": "ابحث عن طبيب أو تخصص",
   "home.upcoming": "موعد قادم",
   "home.specialties": "التخصصات",
-  "home.topDoctors": "أفضل الأطباء",
+  "home.topDoctors": "الأطباء القريبون منك",
   "home.noResults": "لا يوجد أطباء مطابقون لبحثك.",
   "home.years": "سنة",
   "doctor.about": "نبذة",
