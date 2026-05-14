@@ -117,8 +117,8 @@ async function snap(page, id) {
       const t = (b.textContent||'').trim();
       if (b.dataset.goto) return;
       if (/(AM|PM|ص|م)$/.test(t) && t.length < 12) {
-        // slot pill - mark as selectable (no nav)
-        b.dataset.gotoNoop = '1';
+        // slot pill - selectable within current screen
+        b.dataset.slotPill = '1';
       }
       if (/^(Book|احجز)/.test(t)) b.dataset.goto = 'booking-current';
       if (/Confirm booking|تأكيد الحجز/.test(t)) b.dataset.goto = 'bookings';
@@ -357,19 +357,36 @@ const NAV_JS = `
 
   function findGoto(el){
     while (el && el !== document.body) {
-      if (el.dataset && el.dataset.goto) return el.dataset.goto;
-      if (el.dataset && el.dataset.gotoNoop) return '__noop__';
+      if (el.dataset && el.dataset.goto) return { type: 'goto', val: el.dataset.goto, el };
+      if (el.dataset && el.dataset.slotPill) return { type: 'slot', el };
       el = el.parentElement;
     }
     return null;
   }
   document.addEventListener('click', e => {
-    const t = findGoto(e.target);
-    if (t) {
-      e.preventDefault(); e.stopPropagation();
-      if (t === '__noop__') return; // slot pill: do nothing visible
-      show(t);
+    const hit = findGoto(e.target);
+    if (!hit) return;
+    e.preventDefault(); e.stopPropagation();
+    if (hit.type === 'slot') {
+      // toggle selection within current visible screen
+      const screen = hit.el.closest('[data-screen]');
+      if (screen) screen.querySelectorAll('[data-slot-pill]').forEach(p => p.classList.remove('proto-slot-active'));
+      hit.el.classList.add('proto-slot-active');
+      return;
     }
+    if (hit.val === 'booking-current') {
+      const screen = hit.el.closest('[data-screen]');
+      const sel = screen && screen.querySelector('[data-slot-pill].proto-slot-active');
+      if (!sel) {
+        // Flash slots area to hint selection required
+        if (screen) {
+          const pills = screen.querySelectorAll('[data-slot-pill]');
+          pills.forEach(p => { p.classList.add('proto-slot-hint'); setTimeout(() => p.classList.remove('proto-slot-hint'), 800); });
+        }
+        return;
+      }
+    }
+    show(hit.val);
   }, true);
 
   // Hash entry
@@ -407,7 +424,10 @@ const finalHtml = `<!DOCTYPE html>
 ${sharedCss}
 html,body{margin:0;background:#f3f4f6}
 [data-screen]{min-height:100vh}
-[data-goto]{cursor:pointer}
+[data-goto],[data-slot-pill]{cursor:pointer}
+[data-slot-pill].proto-slot-active{background:#0ea5e9 !important;color:#fff !important;border-color:#0ea5e9 !important;box-shadow:0 0 0 2px rgba(14,165,233,.25)}
+[data-slot-pill].proto-slot-hint{animation:protoPulse .4s ease 2}
+@keyframes protoPulse{50%{background:#fee2e2;border-color:#ef4444}}
 </style>
 </head>
 <body>
