@@ -403,7 +403,7 @@ html,body{margin:0;background:#f3f4f6}
 </style>
 </head>
 <body>
-${TOOLBAR}
+
 ${screensHtml}
 <script>${NAV_JS}<\/script>
 </body>
