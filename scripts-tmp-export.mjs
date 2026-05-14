@@ -143,6 +143,25 @@ async function snap(page, id) {
       if (/My profile|الملف الشخصي/.test(t)) b.dataset.goto = 'profile';
       if (/Help|المساعدة|مساعدة/.test(t)) b.dataset.goto = 'help';
     });
+
+    // Specialty buttons on home: 4-col grid of 8 buttons after the "Specialties" heading
+    const SPEC_IDS = ['cardio','derma','neuro','pedia','dental','ortho','ophth','psych'];
+    [...document.querySelectorAll('h2')].forEach(h => {
+      const ht = (h.textContent||'').trim();
+      if (!/Specialties|التخصصات/.test(ht)) return;
+      const section = h.closest('section');
+      const grid = section?.querySelector('.grid');
+      const items = grid ? [...grid.querySelectorAll('button')] : [];
+      items.forEach((b, i) => { if (SPEC_IDS[i]) b.dataset.goto = 'spec-' + SPEC_IDS[i]; });
+    });
+
+    // Doctor profile tabs: About / Reviews
+    [...document.querySelectorAll('button')].forEach(b => {
+      if (b.dataset.goto) return;
+      const t = (b.textContent||'').trim();
+      if (/^(About|نبذة)$/.test(t)) b.dataset.goto = 'doctor-current';
+      if (/^(Reviews|التقييمات)$/.test(t)) b.dataset.goto = 'doctor-current-reviews';
+    });
   }, DOCTORS);
 
   // Inline images
@@ -311,6 +330,32 @@ for (const d of DOCTORS) {
   });
 }
 
+// Reviews tab per doctor
+for (const d of DOCTORS) {
+  await runState('doctor-' + d.id + '-reviews', async p => {
+    await gotoDoctor(p, d.name);
+    await p.evaluate(() => {
+      const btn = [...document.querySelectorAll('button')].find(b => /^(Reviews|التقييمات)$/.test((b.textContent||'').trim()));
+      if (btn) btn.click();
+    });
+    await new Promise(r => setTimeout(r, 300));
+  });
+}
+
+// Specialty filter screens (home with one specialty active)
+const SPEC_IDS = ['cardio','derma','neuro','pedia','dental','ortho','ophth','psych'];
+for (let i = 0; i < SPEC_IDS.length; i++) {
+  await runState('spec-' + SPEC_IDS[i], async p => {
+    await p.evaluate((idx) => {
+      const h = [...document.querySelectorAll('h2')].find(x => /Specialties|التخصصات/.test((x.textContent||'').trim()));
+      const grid = h?.closest('section')?.querySelector('.grid');
+      const btns = grid ? grid.querySelectorAll('button') : [];
+      btns[idx]?.click();
+    }, i);
+    await new Promise(r => setTimeout(r, 350));
+  });
+}
+
 await runState('allDoctors', async p => {
   await p.evaluate(() => {
     const btn = [...document.querySelectorAll('button')].find(b => /^(See all|عرض الكل)$/.test((b.textContent||'').trim()));
@@ -395,7 +440,12 @@ const NAV_JS = `
   function show(id){
     if (id === '__back__') { history.pop(); id = history[history.length-1] || 'home'; }
     else if (id === 'booking-current') { id = 'booking-' + currentDoctor; }
-    if (id.startsWith('doctor-')) currentDoctor = id.slice(7);
+    else if (id === 'doctor-current') { id = 'doctor-' + currentDoctor; }
+    else if (id === 'doctor-current-reviews') { id = 'doctor-' + currentDoctor + '-reviews'; }
+    if (id.startsWith('doctor-')) {
+      const m = id.match(/^doctor-(d\d+)/);
+      if (m) currentDoctor = m[1];
+    }
     if (!screens.includes(id)) { console.warn('no screen', id); return; }
     if (history[history.length-1] !== id) history.push(id);
     if (history.length > 50) history.shift();
