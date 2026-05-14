@@ -1,10 +1,10 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Home, Calendar, PlayCircle, Menu, Search, Star, MapPin, Clock, ArrowLeft,
   HeartPulse, Sparkles, Brain, Baby, Smile, Bone, Eye, BrainCog, Bell,
   Globe, LifeBuoy, BookmarkCheck, User as UserIcon, X, Phone,
   MessageCircleQuestion, Filter, Languages, ChevronRight, Award, Briefcase,
-  GraduationCap, BadgeCheck, Users, Video,
+  GraduationCap, BadgeCheck, Users, Video, ChevronDown, Check,
 } from "lucide-react";
 import { doctors, specialties, videos, qaItems, events, countries, allSpecs, type Doctor } from "@/lib/mock-data";
 import { DoctorAvatar } from "./Avatar";
