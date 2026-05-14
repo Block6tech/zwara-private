@@ -440,7 +440,12 @@ const NAV_JS = `
   function show(id){
     if (id === '__back__') { history.pop(); id = history[history.length-1] || 'home'; }
     else if (id === 'booking-current') { id = 'booking-' + currentDoctor; }
-    if (id.startsWith('doctor-')) currentDoctor = id.slice(7);
+    else if (id === 'doctor-current') { id = 'doctor-' + currentDoctor; }
+    else if (id === 'doctor-current-reviews') { id = 'doctor-' + currentDoctor + '-reviews'; }
+    if (id.startsWith('doctor-')) {
+      const m = id.match(/^doctor-(d\d+)/);
+      if (m) currentDoctor = m[1];
+    }
     if (!screens.includes(id)) { console.warn('no screen', id); return; }
     if (history[history.length-1] !== id) history.push(id);
     if (history.length > 50) history.shift();
