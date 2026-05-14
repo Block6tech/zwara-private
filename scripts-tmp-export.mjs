@@ -143,6 +143,25 @@ async function snap(page, id) {
       if (/My profile|الملف الشخصي/.test(t)) b.dataset.goto = 'profile';
       if (/Help|المساعدة|مساعدة/.test(t)) b.dataset.goto = 'help';
     });
+
+    // Specialty buttons on home: 4-col grid of 8 buttons after the "Specialties" heading
+    const SPEC_IDS = ['cardio','derma','neuro','pedia','dental','ortho','ophth','psych'];
+    [...document.querySelectorAll('h2')].forEach(h => {
+      const ht = (h.textContent||'').trim();
+      if (!/Specialties|التخصصات/.test(ht)) return;
+      const section = h.closest('section');
+      const grid = section?.querySelector('.grid');
+      const items = grid ? [...grid.querySelectorAll('button')] : [];
+      items.forEach((b, i) => { if (SPEC_IDS[i]) b.dataset.goto = 'spec-' + SPEC_IDS[i]; });
+    });
+
+    // Doctor profile tabs: About / Reviews
+    [...document.querySelectorAll('button')].forEach(b => {
+      if (b.dataset.goto) return;
+      const t = (b.textContent||'').trim();
+      if (/^(About|نبذة)$/.test(t)) b.dataset.goto = 'doctor-current';
+      if (/^(Reviews|التقييمات)$/.test(t)) b.dataset.goto = 'doctor-current-reviews';
+    });
   }, DOCTORS);
 
   // Inline images
