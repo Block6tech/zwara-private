@@ -254,6 +254,44 @@ for (const d of DOCTORS) {
     await gotoDoctor(p, d.name);
   });
   await runState('booking-' + d.id, async p => {
+    // Auth first (guest would be routed to register from doctor.Book)
+    await clickMenu(p);
+    await p.evaluate(() => {
+      const btn = [...document.querySelectorAll('button')].find(b => /Sign up|تسجيل الدخول|Sign in/.test(b.textContent));
+      if (btn) btn.click();
+    });
+    await new Promise(r => setTimeout(r, 300));
+    await p.evaluate(() => {
+      const inputs = document.querySelectorAll('input');
+      const set = (el, v) => {
+        const setter = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(el), 'value').set;
+        setter.call(el, v); el.dispatchEvent(new Event('input', { bubbles: true }));
+      };
+      if (inputs[0]) set(inputs[0], 'Anas Al-Ali');
+      if (inputs[1]) set(inputs[1], '+96512345678');
+    });
+    await new Promise(r => setTimeout(r, 200));
+    await p.evaluate(() => {
+      const btn = [...document.querySelectorAll('button')].find(b => /Send code|إرسال الرمز/.test(b.textContent));
+      if (btn) btn.click();
+    });
+    await new Promise(r => setTimeout(r, 400));
+    // Fill OTP inputs
+    await p.evaluate(() => {
+      const inputs = document.querySelectorAll('input');
+      const set = (el, v) => {
+        const setter = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(el), 'value').set;
+        setter.call(el, v); el.dispatchEvent(new Event('input', { bubbles: true }));
+      };
+      inputs.forEach(i => set(i, '1'));
+    });
+    await new Promise(r => setTimeout(r, 200));
+    await p.evaluate(() => {
+      const btn = [...document.querySelectorAll('button')].find(b => /^(Verify|تحقق)/.test((b.textContent||'').trim()));
+      if (btn) btn.click();
+    });
+    await new Promise(r => setTimeout(r, 500));
+    // Now navigate to doctor
     await gotoDoctor(p, d.name);
     await p.evaluate(() => {
       const slot = [...document.querySelectorAll('button')].find(b => {
@@ -267,7 +305,6 @@ for (const d of DOCTORS) {
       const btn = [...document.querySelectorAll('button')].find(b => /^(Book appointment|احجز الموعد|Book )/.test((b.textContent||'').trim()));
       if (btn) btn.click();
     });
-    await new Promise(r => setTimeout(r, 400));
     await p.waitForFunction(() =>
       document.body.innerText.includes('Confirm booking') ||
       document.body.innerText.includes('تأكيد الحجز'), { timeout: 5000 }).catch(() => {});
