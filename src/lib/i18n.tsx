@@ -27,7 +27,7 @@ const en: Dict = {
   "home.search": "Search doctor or specialty",
   "home.upcoming": "Upcoming appointment",
   "home.specialties": "Specialties",
-  "home.topDoctors": "Top doctors",
+  "home.topDoctors": "Doctors nearby you",
   "home.noResults": "No doctors match your search.",
   "home.years": "y",
   // Doctor
