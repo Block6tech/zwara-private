@@ -96,12 +96,15 @@ async function snap(page, id) {
       }
     }
 
-    // Awareness sub-tabs (Videos / Q&A): two buttons inside awareness header
-    const awBtns = [...document.querySelectorAll('button')].filter(b => /^(Videos|Q&A|أسئلة|فيديوهات|الأسئلة)/.test((b.textContent||'').trim()));
-    if (awBtns.length === 2) {
-      const isVideos = (t) => /Videos|فيديوهات/.test(t);
-      awBtns.forEach(b => { b.dataset.goto = isVideos(b.textContent) ? 'awareness' : 'awareness-qa'; });
-    }
+    // Awareness sub-tabs (Videos / Q&A): two header chip buttons
+    const awBtns = [...document.querySelectorAll('button')].filter(b => {
+      const t = (b.textContent||'').trim();
+      return /Video Library|Anonymous Q&A|مكتبة الفيديو|أسئلة وأجوبة/.test(t);
+    });
+    awBtns.forEach(b => {
+      const t = (b.textContent||'').trim();
+      b.dataset.goto = /Video|فيديو/.test(t) ? 'awareness' : 'awareness-qa';
+    });
 
     // "See all" -> All doctors
     [...document.querySelectorAll('button')].forEach(b => {
