@@ -113,14 +113,28 @@ async function snap(page, id) {
     });
 
     // Slot pills + Book + Confirm + auth flow
+    [...document.querySelectorAll('h3')].forEach(h => {
+      if (!/Available slots|المواعيد المتاحة/.test((h.textContent || '').trim())) return;
+      const section = h.parentElement;
+      section?.querySelectorAll('button').forEach(b => { b.dataset.slotPill = '1'; });
+      const footer = section?.nextElementSibling;
+      footer?.querySelectorAll('button').forEach(b => {
+        b.dataset.goto = 'booking-current';
+        b.removeAttribute('disabled');
+      });
+    });
     [...document.querySelectorAll('button')].forEach(b => {
       const t = (b.textContent||'').trim();
       if (b.dataset.goto) return;
-      if (/(AM|PM|ص|م)$/.test(t) && t.length < 12) {
+      if (/(AM|PM|ص|م)$/.test(t) && t.length <= 18) {
         // slot pill - selectable within current screen
         b.dataset.slotPill = '1';
       }
       if (/^(Book|احجز)/.test(t)) b.dataset.goto = 'booking-current';
+      if (/Select a slot|اختر/.test(t)) {
+        b.dataset.goto = 'booking-current';
+        b.removeAttribute('disabled');
+      }
       if (/Confirm booking|تأكيد الحجز/.test(t)) b.dataset.goto = 'bookings';
       if (/Send code|إرسال الرمز/.test(t)) b.dataset.goto = 'otp';
       if (/^(Verify|تحقق)/.test(t)) b.dataset.goto = 'home';
