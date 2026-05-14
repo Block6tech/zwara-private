@@ -62,23 +62,19 @@ async function inlineCssUrls(cssText, baseUrl) {
 }
 
 async function snap(page, id) {
-  await new Promise(r => setTimeout(r, 500));
-  // Collect external CSS as text
-  const cssLinks = await page.evaluate(() =>
-    [...document.querySelectorAll('link[rel="stylesheet"]')].map(l => l.href)
-  );
-  const cssBlocks = [];
-  for (const href of cssLinks) {
-    try {
-      const css = await (await fetch(href)).text();
-      cssBlocks.push({ css, base: href });
-    } catch {}
-  }
-  // Also style tags (inline)
-  const styleTags = await page.evaluate(() =>
-    [...document.querySelectorAll('style')].map(s => s.textContent || '')
-  );
-  for (const css of styleTags) cssBlocks.push({ css, base: URL });
+  await new Promise(r => setTimeout(r, 800));
+  // Extract real applied CSS from document.styleSheets (handles Vite dev HMR-injected styles)
+  const liveCss = await page.evaluate(() => {
+    const out = [];
+    for (const ss of document.styleSheets) {
+      try {
+        const rules = [...ss.cssRules].map(r => r.cssText).join('\n');
+        out.push(rules);
+      } catch (e) { /* CORS-locked sheet, skip */ }
+    }
+    return out.join('\n');
+  });
+  const cssBlocks = [{ css: liveCss, base: URL }];
 
   // Collect all img srcs and replace on page with data URIs
   const imgSrcs = await page.evaluate(() =>
