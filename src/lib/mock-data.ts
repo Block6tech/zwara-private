@@ -162,7 +162,7 @@ export const doctors: Doctor[] = [
   },
   {
     id: "d5",
-    name: "Dr. Nadia Al-Ajmi", nameAr: "د. نادية العجمي",
+    name: "Dr. Fajer Al-Esa", nameAr: "د. فجر العيسى",
     specialization: "Dentistry",
     subspecialty: "Orthodontics",
     bio: "Modern orthodontic care with clear aligners and braces.",
