@@ -430,21 +430,18 @@ function AllDoctorsScreen({ onBack, onOpenDoctor }: { onBack: () => void; onOpen
         </div>
 
         {cities.length > 1 && (
-          <div className="mt-2">
+          <div className="mt-3">
             <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">
               {t("doctors.city", "City")}
             </p>
-            <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
-              <FilterPill label={t("common.all")} active={activeCity === null} onClick={() => setActiveCity(null)} />
-              {cities.map((c) => (
-                <FilterPill
-                  key={c}
-                  label={c}
-                  active={activeCity === c}
-                  onClick={() => setActiveCity(activeCity === c ? null : c)}
-                />
-              ))}
-            </div>
+            <CityDropdown
+              cities={cities}
+              value={activeCity}
+              onChange={setActiveCity}
+              allLabel={t("common.all")}
+              searchPlaceholder={t("home.search")}
+              emptyLabel={t("home.noResults")}
+            />
           </div>
         )}
       </header>
