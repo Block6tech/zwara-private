@@ -117,8 +117,8 @@ async function snap(page, id) {
       const t = (b.textContent||'').trim();
       if (b.dataset.goto) return;
       if (/(AM|PM|ص|م)$/.test(t) && t.length < 12) {
-        // slot pill - mark as selectable (no nav)
-        b.dataset.gotoNoop = '1';
+        // slot pill - selectable within current screen
+        b.dataset.slotPill = '1';
       }
       if (/^(Book|احجز)/.test(t)) b.dataset.goto = 'booking-current';
       if (/Confirm booking|تأكيد الحجز/.test(t)) b.dataset.goto = 'bookings';
