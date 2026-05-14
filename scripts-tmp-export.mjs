@@ -91,7 +91,7 @@ async function snap(page, id) {
         const txt = el.textContent || '';
         if ((txt.includes(d.name) || txt.includes(d.ar)) && /KWD|د\.ك/.test(txt)) {
           el.dataset.goto = 'doctor-' + d.id;
-          break;
+          
         }
       }
     }
