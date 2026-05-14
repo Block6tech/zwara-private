@@ -424,7 +424,10 @@ const finalHtml = `<!DOCTYPE html>
 ${sharedCss}
 html,body{margin:0;background:#f3f4f6}
 [data-screen]{min-height:100vh}
-[data-goto]{cursor:pointer}
+[data-goto],[data-slot-pill]{cursor:pointer}
+[data-slot-pill].proto-slot-active{background:#0ea5e9 !important;color:#fff !important;border-color:#0ea5e9 !important;box-shadow:0 0 0 2px rgba(14,165,233,.25)}
+[data-slot-pill].proto-slot-hint{animation:protoPulse .4s ease 2}
+@keyframes protoPulse{50%{background:#fee2e2;border-color:#ef4444}}
 </style>
 </head>
 <body>
