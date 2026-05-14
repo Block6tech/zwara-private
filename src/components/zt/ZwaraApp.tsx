@@ -1,10 +1,10 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Home, Calendar, PlayCircle, Menu, Search, Star, MapPin, Clock, ArrowLeft,
   HeartPulse, Sparkles, Brain, Baby, Smile, Bone, Eye, BrainCog, Bell,
   Globe, LifeBuoy, BookmarkCheck, User as UserIcon, X, Phone,
   MessageCircleQuestion, Filter, Languages, ChevronRight, Award, Briefcase,
-  GraduationCap, BadgeCheck, Users, Video,
+  GraduationCap, BadgeCheck, Users, Video, ChevronDown, Check,
 } from "lucide-react";
 import { doctors, specialties, videos, qaItems, events, countries, allSpecs, type Doctor } from "@/lib/mock-data";
 import { DoctorAvatar } from "./Avatar";
@@ -430,21 +430,18 @@ function AllDoctorsScreen({ onBack, onOpenDoctor }: { onBack: () => void; onOpen
         </div>
 
         {cities.length > 1 && (
-          <div className="mt-2">
+          <div className="mt-3">
             <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">
               {t("doctors.city", "City")}
             </p>
-            <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
-              <FilterPill label={t("common.all")} active={activeCity === null} onClick={() => setActiveCity(null)} />
-              {cities.map((c) => (
-                <FilterPill
-                  key={c}
-                  label={c}
-                  active={activeCity === c}
-                  onClick={() => setActiveCity(activeCity === c ? null : c)}
-                />
-              ))}
-            </div>
+            <CityDropdown
+              cities={cities}
+              value={activeCity}
+              onChange={setActiveCity}
+              allLabel={t("common.all")}
+              searchPlaceholder={t("home.search")}
+              emptyLabel={t("home.noResults")}
+            />
           </div>
         )}
       </header>
@@ -478,6 +475,97 @@ function FilterPill({ label, active, onClick }: { label: string; active: boolean
     >
       {label}
     </button>
+  );
+}
+
+function CityDropdown({
+  cities, value, onChange, allLabel, searchPlaceholder, emptyLabel,
+}: {
+  cities: string[];
+  value: string | null;
+  onChange: (v: string | null) => void;
+  allLabel: string;
+  searchPlaceholder: string;
+  emptyLabel: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [q, setQ] = useState("");
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDoc = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, [open]);
+
+  const filtered = useMemo(
+    () => cities.filter((c) => c.toLowerCase().includes(q.toLowerCase())),
+    [cities, q],
+  );
+
+  const selectedLabel = value ?? allLabel;
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl bg-card border border-border text-sm shadow-soft hover:border-primary/40 transition-colors"
+      >
+        <span className="flex items-center gap-2 truncate">
+          <MapPin className="w-4 h-4 text-muted-foreground shrink-0" />
+          <span className={value ? "text-foreground font-medium" : "text-muted-foreground"}>
+            {selectedLabel}
+          </span>
+        </span>
+        <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+
+      {open && (
+        <div className="absolute left-0 right-0 mt-2 z-20 rounded-xl bg-card border border-border shadow-lg overflow-hidden">
+          <div className="relative p-2 border-b border-border">
+            <Search className="absolute start-5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input
+              autoFocus
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder={searchPlaceholder}
+              className="w-full ps-9 pe-3 py-2 rounded-lg bg-background border border-border text-sm outline-none focus:border-primary"
+            />
+          </div>
+          <ul className="max-h-56 overflow-y-auto py-1">
+            <li>
+              <button
+                type="button"
+                onClick={() => { onChange(null); setOpen(false); setQ(""); }}
+                className="w-full flex items-center justify-between px-3 py-2 text-sm hover:bg-accent text-start"
+              >
+                <span>{allLabel}</span>
+                {value === null && <Check className="w-4 h-4 text-primary" />}
+              </button>
+            </li>
+            {filtered.map((c) => (
+              <li key={c}>
+                <button
+                  type="button"
+                  onClick={() => { onChange(c); setOpen(false); setQ(""); }}
+                  className="w-full flex items-center justify-between px-3 py-2 text-sm hover:bg-accent text-start"
+                >
+                  <span>{c}</span>
+                  {value === c && <Check className="w-4 h-4 text-primary" />}
+                </button>
+              </li>
+            ))}
+            {filtered.length === 0 && (
+              <li className="px-3 py-4 text-center text-xs text-muted-foreground">{emptyLabel}</li>
+            )}
+          </ul>
+        </div>
+      )}
+    </div>
   );
 }
 
