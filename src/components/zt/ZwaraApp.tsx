@@ -26,7 +26,8 @@ type Screen =
   | { name: "otp"; phone: string }
   | { name: "bookings" }
   | { name: "profile" }
-  | { name: "help" };
+  | { name: "help" }
+  | { name: "allDoctors" };
 
 type BookingStatus = "Pending" | "Approved" | "Rescheduled" | "Rejected" | "Completed" | "Cancelled";
 type Booking = { id: string; doctorId: string; slot: string; status: BookingStatus; createdAt: string };
@@ -100,6 +101,7 @@ export function ZwaraApp() {
               <HomeTab
                 onOpenDoctor={(id) => setScreen({ name: "doctor", id })}
                 onOpenMenu={() => setMenuOpen(true)}
+                onSeeAllDoctors={() => setScreen({ name: "allDoctors" })}
                 userTag={userTag}
                 bookings={bookings}
               />
@@ -170,6 +172,12 @@ export function ZwaraApp() {
           <ProfileScreen userTag={userTag} isGuest={isGuest} onBack={() => setScreen({ name: "tabs" })} />
         )}
         {screen.name === "help" && <HelpScreen onBack={() => setScreen({ name: "tabs" })} />}
+        {screen.name === "allDoctors" && (
+          <AllDoctorsScreen
+            onBack={() => setScreen({ name: "tabs" })}
+            onOpenDoctor={(id) => setScreen({ name: "doctor", id })}
+          />
+        )}
       </div>
 
       {screen.name === "tabs" && (
