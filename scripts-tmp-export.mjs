@@ -221,9 +221,14 @@ await runState('menu', clickMenu);
 // Per doctor screen + booking confirm screen
 async function gotoDoctor(p, doctorName) {
   await p.evaluate((name) => {
-    const cards = [...document.querySelectorAll('button, [role="button"], div')]
-      .filter(el => el.querySelector && el.querySelector('img') && (el.textContent||'').includes(name));
-    if (cards[0]) cards[0].click();
+    // Find the smallest <button> whose text contains the doctor name + price marker
+    const matches = [...document.querySelectorAll('button')]
+      .filter(b => {
+        const t = b.textContent || '';
+        return t.includes(name) && /KWD|د\.ك/.test(t);
+      })
+      .sort((a, b) => (a.textContent.length - b.textContent.length));
+    if (matches[0]) matches[0].click();
   }, doctorName);
   await p.waitForFunction(() =>
     document.body.innerText.includes('Available slots') ||
