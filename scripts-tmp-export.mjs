@@ -209,7 +209,7 @@ await runState('awareness-qa', async p => {
   const b = await p.$$('nav.border-t button'); await b[1].click();
   await new Promise(r => setTimeout(r, 200));
   await p.evaluate(() => {
-    const btn = [...document.querySelectorAll('button')].find(b => /^(Q&A|الأسئلة|أسئلة)/.test((b.textContent||'').trim()));
+    const btn = [...document.querySelectorAll('button')].find(b => /Anonymous Q&A|أسئلة وأجوبة/.test((b.textContent||'').trim()));
     if (btn) btn.click();
   });
 });
