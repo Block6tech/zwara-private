@@ -256,14 +256,18 @@ for (const d of DOCTORS) {
   await runState('booking-' + d.id, async p => {
     await gotoDoctor(p, d.name);
     await p.evaluate(() => {
-      const slot = [...document.querySelectorAll('button')].find(b => /(AM|PM|ص|م)$/.test((b.textContent||'').trim()) && (b.textContent||'').length < 12);
+      const slot = [...document.querySelectorAll('button')].find(b => {
+        const t = (b.textContent||'').trim();
+        return /(AM|PM|ص|م)$/.test(t) && t.length <= 22 && !/Select|اختر/.test(t);
+      });
       if (slot) slot.click();
     });
-    await new Promise(r => setTimeout(r, 200));
+    await new Promise(r => setTimeout(r, 400));
     await p.evaluate(() => {
-      const btn = [...document.querySelectorAll('button')].find(b => /^(Book|احجز)/.test((b.textContent||'').trim()));
+      const btn = [...document.querySelectorAll('button')].find(b => /^(Book appointment|احجز الموعد|Book )/.test((b.textContent||'').trim()));
       if (btn) btn.click();
     });
+    await new Promise(r => setTimeout(r, 400));
     await p.waitForFunction(() =>
       document.body.innerText.includes('Confirm booking') ||
       document.body.innerText.includes('تأكيد الحجز'), { timeout: 5000 }).catch(() => {});
