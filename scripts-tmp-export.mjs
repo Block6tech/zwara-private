@@ -357,19 +357,36 @@ const NAV_JS = `
 
   function findGoto(el){
     while (el && el !== document.body) {
-      if (el.dataset && el.dataset.goto) return el.dataset.goto;
-      if (el.dataset && el.dataset.gotoNoop) return '__noop__';
+      if (el.dataset && el.dataset.goto) return { type: 'goto', val: el.dataset.goto, el };
+      if (el.dataset && el.dataset.slotPill) return { type: 'slot', el };
       el = el.parentElement;
     }
     return null;
   }
   document.addEventListener('click', e => {
-    const t = findGoto(e.target);
-    if (t) {
-      e.preventDefault(); e.stopPropagation();
-      if (t === '__noop__') return; // slot pill: do nothing visible
-      show(t);
+    const hit = findGoto(e.target);
+    if (!hit) return;
+    e.preventDefault(); e.stopPropagation();
+    if (hit.type === 'slot') {
+      // toggle selection within current visible screen
+      const screen = hit.el.closest('[data-screen]');
+      if (screen) screen.querySelectorAll('[data-slot-pill]').forEach(p => p.classList.remove('proto-slot-active'));
+      hit.el.classList.add('proto-slot-active');
+      return;
     }
+    if (hit.val === 'booking-current') {
+      const screen = hit.el.closest('[data-screen]');
+      const sel = screen && screen.querySelector('[data-slot-pill].proto-slot-active');
+      if (!sel) {
+        // Flash slots area to hint selection required
+        if (screen) {
+          const pills = screen.querySelectorAll('[data-slot-pill]');
+          pills.forEach(p => { p.classList.add('proto-slot-hint'); setTimeout(() => p.classList.remove('proto-slot-hint'), 800); });
+        }
+        return;
+      }
+    }
+    show(hit.val);
   }, true);
 
   // Hash entry
