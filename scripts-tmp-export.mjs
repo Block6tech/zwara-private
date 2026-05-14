@@ -330,6 +330,32 @@ for (const d of DOCTORS) {
   });
 }
 
+// Reviews tab per doctor
+for (const d of DOCTORS) {
+  await runState('doctor-' + d.id + '-reviews', async p => {
+    await gotoDoctor(p, d.name);
+    await p.evaluate(() => {
+      const btn = [...document.querySelectorAll('button')].find(b => /^(Reviews|التقييمات)$/.test((b.textContent||'').trim()));
+      if (btn) btn.click();
+    });
+    await new Promise(r => setTimeout(r, 300));
+  });
+}
+
+// Specialty filter screens (home with one specialty active)
+const SPEC_IDS = ['cardio','derma','neuro','pedia','dental','ortho','ophth','psych'];
+for (let i = 0; i < SPEC_IDS.length; i++) {
+  await runState('spec-' + SPEC_IDS[i], async p => {
+    await p.evaluate((idx) => {
+      const h = [...document.querySelectorAll('h2')].find(x => /Specialties|التخصصات/.test((x.textContent||'').trim()));
+      const grid = h?.closest('section')?.querySelector('.grid');
+      const btns = grid ? grid.querySelectorAll('button') : [];
+      btns[idx]?.click();
+    }, i);
+    await new Promise(r => setTimeout(r, 350));
+  });
+}
+
 await runState('allDoctors', async p => {
   await p.evaluate(() => {
     const btn = [...document.querySelectorAll('button')].find(b => /^(See all|عرض الكل)$/.test((b.textContent||'').trim()));
