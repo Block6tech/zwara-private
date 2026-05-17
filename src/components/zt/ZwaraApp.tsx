@@ -362,7 +362,7 @@ function HomeTab({
           <h2 className="font-semibold">{t("home.topDoctors")}{activeSpec && ` · ${activeSpecName}`}</h2>
           <span className="text-xs text-muted-foreground">{filtered.length} {t("common.results")}</span>
         </div>
-        <div className="space-y-3">
+        <div className="space-y-3 lg:space-y-0 lg:grid lg:grid-cols-2 xl:grid-cols-3 lg:gap-4">
           {filtered.map((d) => (
             <DoctorCard key={d.id} doctor={d} onClick={() => onOpenDoctor(d.id)} />
           ))}
