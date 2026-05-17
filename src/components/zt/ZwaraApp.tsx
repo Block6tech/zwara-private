@@ -181,7 +181,7 @@ export function ZwaraApp() {
       </div>
 
       {screen.name === "tabs" && (
-        <nav className="border-t border-border bg-card/80 backdrop-blur px-2 py-2 pb-3 flex items-center justify-around">
+        <nav className="lg:hidden border-t border-border bg-card/80 backdrop-blur px-2 py-2 pb-3 flex items-center justify-around">
           {[
             { id: "home" as const, key: "tab.home", icon: Home },
             { id: "awareness" as const, key: "tab.awareness", icon: PlayCircle },
