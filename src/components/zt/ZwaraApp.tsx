@@ -97,6 +97,38 @@ export function ZwaraApp() {
       <div className="flex-1 overflow-hidden flex flex-col">
         {screen.name === "tabs" && (
           <>
+            {/* Desktop top nav */}
+            <nav className="hidden lg:flex items-center justify-between border-b border-border bg-card/60 backdrop-blur px-6 py-3">
+              <div className="flex items-center gap-3">
+                <img src={logo} alt="Zwara Tabeya" className="w-8 h-8 object-contain" />
+                <span className="font-bold text-base">Zwara Tabeya</span>
+              </div>
+              <div className="flex items-center gap-1">
+                {[
+                  { id: "home" as const, key: "tab.home", icon: Home },
+                  { id: "awareness" as const, key: "tab.awareness", icon: PlayCircle },
+                  { id: "events" as const, key: "tab.events", icon: Calendar },
+                ].map((tt) => {
+                  const active = tab === tt.id;
+                  const Icon = tt.icon;
+                  return (
+                    <button
+                      key={tt.id}
+                      onClick={() => setTab(tt.id)}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
+                        active ? "bg-primary-soft text-primary" : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                      }`}
+                    >
+                      <Icon className="w-4 h-4" />
+                      {t(tt.key)}
+                    </button>
+                  );
+                })}
+              </div>
+              <button onClick={() => setMenuOpen(true)} className="p-2 rounded-xl hover:bg-accent">
+                <Menu className="w-5 h-5" />
+              </button>
+            </nav>
             {tab === "home" && (
               <HomeTab
                 onOpenDoctor={(id) => setScreen({ name: "doctor", id })}
