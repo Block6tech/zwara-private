@@ -85,8 +85,8 @@ export function ZwaraApp() {
 
   return (
     <MobileShell>
-      {/* Status bar */}
-      <div className="h-6 md:h-8 px-6 pt-2 flex items-center justify-between text-[11px] font-semibold text-foreground/80">
+      {/* Status bar — phone preview only */}
+      <div className="h-6 md:h-8 lg:hidden px-6 pt-2 flex items-center justify-between text-[11px] font-semibold text-foreground/80">
         <span>9:41</span>
         <div className="flex items-center gap-1">
           <span>●●●●</span>
@@ -97,6 +97,38 @@ export function ZwaraApp() {
       <div className="flex-1 overflow-hidden flex flex-col">
         {screen.name === "tabs" && (
           <>
+            {/* Desktop top nav */}
+            <nav className="hidden lg:flex items-center justify-between border-b border-border bg-card/60 backdrop-blur px-6 py-3">
+              <div className="flex items-center gap-3">
+                <img src={logo} alt="Zwara Tabeya" className="w-8 h-8 object-contain" />
+                <span className="font-bold text-base">Zwara Tabeya</span>
+              </div>
+              <div className="flex items-center gap-1">
+                {[
+                  { id: "home" as const, key: "tab.home", icon: Home },
+                  { id: "awareness" as const, key: "tab.awareness", icon: PlayCircle },
+                  { id: "events" as const, key: "tab.events", icon: Calendar },
+                ].map((tt) => {
+                  const active = tab === tt.id;
+                  const Icon = tt.icon;
+                  return (
+                    <button
+                      key={tt.id}
+                      onClick={() => setTab(tt.id)}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
+                        active ? "bg-primary-soft text-primary" : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                      }`}
+                    >
+                      <Icon className="w-4 h-4" />
+                      {t(tt.key)}
+                    </button>
+                  );
+                })}
+              </div>
+              <button onClick={() => setMenuOpen(true)} className="p-2 rounded-xl hover:bg-accent">
+                <Menu className="w-5 h-5" />
+              </button>
+            </nav>
             {tab === "home" && (
               <HomeTab
                 onOpenDoctor={(id) => setScreen({ name: "doctor", id })}
@@ -181,7 +213,7 @@ export function ZwaraApp() {
       </div>
 
       {screen.name === "tabs" && (
-        <nav className="border-t border-border bg-card/80 backdrop-blur px-2 py-2 pb-3 flex items-center justify-around">
+        <nav className="lg:hidden border-t border-border bg-card/80 backdrop-blur px-2 py-2 pb-3 flex items-center justify-around">
           {[
             { id: "home" as const, key: "tab.home", icon: Home },
             { id: "awareness" as const, key: "tab.awareness", icon: PlayCircle },
@@ -303,7 +335,7 @@ function HomeTab({
           <h2 className="font-semibold">{t("home.specialties")}</h2>
           <button onClick={onSeeAllDoctors} className="text-xs text-primary font-medium hover:underline">{t("common.seeAll")}</button>
         </div>
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-4 lg:grid-cols-8 gap-3">
           {specialties.slice(0, 8).map((s) => {
             const Icon = iconMap[s.icon];
             const active = activeSpec === s.id;
@@ -330,7 +362,7 @@ function HomeTab({
           <h2 className="font-semibold">{t("home.topDoctors")}{activeSpec && ` · ${activeSpecName}`}</h2>
           <span className="text-xs text-muted-foreground">{filtered.length} {t("common.results")}</span>
         </div>
-        <div className="space-y-3">
+        <div className="space-y-3 lg:space-y-0 lg:grid lg:grid-cols-2 xl:grid-cols-3 lg:gap-4">
           {filtered.map((d) => (
             <DoctorCard key={d.id} doctor={d} onClick={() => onOpenDoctor(d.id)} />
           ))}
@@ -450,7 +482,7 @@ function AllDoctorsScreen({ onBack, onOpenDoctor }: { onBack: () => void; onOpen
         <p className="text-xs text-muted-foreground mb-3">
           {filtered.length} {t("common.results")}
         </p>
-        <div className="space-y-3">
+        <div className="space-y-3 lg:space-y-0 lg:grid lg:grid-cols-2 xl:grid-cols-3 lg:gap-4">
           {filtered.map((d) => (
             <DoctorCard key={d.id} doctor={d} onClick={() => onOpenDoctor(d.id)} />
           ))}
@@ -682,7 +714,7 @@ function DoctorScreen({ doctor, onBack, onBook }: { doctor: Doctor; onBack: () =
 
       <div className="px-5 mt-6">
         <h3 className="font-semibold mb-3">{t("doctor.availableSlots")}</h3>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
           {doctor.nextSlots.map((slot) => {
             const sel = selectedSlot === slot;
             return (
@@ -701,17 +733,19 @@ function DoctorScreen({ doctor, onBack, onBook }: { doctor: Doctor; onBack: () =
       </div>
 
       <div className="absolute bottom-0 start-0 end-0 p-4 bg-card/95 backdrop-blur border-t border-border">
-        <div className="flex items-center justify-between mb-2 text-xs">
-          <span className="text-muted-foreground">{t("common.fee")}</span>
-          <span className="font-bold">{doctor.fee} {t("common.kwd")}</span>
+        <div className="lg:max-w-xl lg:mx-auto">
+          <div className="flex items-center justify-between mb-2 text-xs">
+            <span className="text-muted-foreground">{t("common.fee")}</span>
+            <span className="font-bold">{doctor.fee} {t("common.kwd")}</span>
+          </div>
+          <button
+            disabled={!selectedSlot}
+            onClick={() => selectedSlot && onBook(selectedSlot)}
+            className="w-full py-3.5 rounded-2xl bg-gradient-primary text-primary-foreground font-semibold shadow-card disabled:opacity-40 disabled:shadow-none transition-all"
+          >
+            {selectedSlot ? `${t("doctor.book")} ${tSlot(selectedSlot, lang)}` : t("doctor.selectSlot")}
+          </button>
         </div>
-        <button
-          disabled={!selectedSlot}
-          onClick={() => selectedSlot && onBook(selectedSlot)}
-          className="w-full py-3.5 rounded-2xl bg-gradient-primary text-primary-foreground font-semibold shadow-card disabled:opacity-40 disabled:shadow-none transition-all"
-        >
-          {selectedSlot ? `${t("doctor.book")} ${tSlot(selectedSlot, lang)}` : t("doctor.selectSlot")}
-        </button>
       </div>
     </div>
   );
