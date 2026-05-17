@@ -714,7 +714,7 @@ function DoctorScreen({ doctor, onBack, onBook }: { doctor: Doctor; onBack: () =
 
       <div className="px-5 mt-6">
         <h3 className="font-semibold mb-3">{t("doctor.availableSlots")}</h3>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
           {doctor.nextSlots.map((slot) => {
             const sel = selectedSlot === slot;
             return (
