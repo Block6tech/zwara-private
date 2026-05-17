@@ -335,7 +335,7 @@ function HomeTab({
           <h2 className="font-semibold">{t("home.specialties")}</h2>
           <button onClick={onSeeAllDoctors} className="text-xs text-primary font-medium hover:underline">{t("common.seeAll")}</button>
         </div>
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-4 lg:grid-cols-8 gap-3">
           {specialties.slice(0, 8).map((s) => {
             const Icon = iconMap[s.icon];
             const active = activeSpec === s.id;
