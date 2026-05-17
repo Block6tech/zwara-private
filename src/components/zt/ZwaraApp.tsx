@@ -733,17 +733,19 @@ function DoctorScreen({ doctor, onBack, onBook }: { doctor: Doctor; onBack: () =
       </div>
 
       <div className="absolute bottom-0 start-0 end-0 p-4 bg-card/95 backdrop-blur border-t border-border">
-        <div className="flex items-center justify-between mb-2 text-xs">
-          <span className="text-muted-foreground">{t("common.fee")}</span>
-          <span className="font-bold">{doctor.fee} {t("common.kwd")}</span>
+        <div className="lg:max-w-xl lg:mx-auto">
+          <div className="flex items-center justify-between mb-2 text-xs">
+            <span className="text-muted-foreground">{t("common.fee")}</span>
+            <span className="font-bold">{doctor.fee} {t("common.kwd")}</span>
+          </div>
+          <button
+            disabled={!selectedSlot}
+            onClick={() => selectedSlot && onBook(selectedSlot)}
+            className="w-full py-3.5 rounded-2xl bg-gradient-primary text-primary-foreground font-semibold shadow-card disabled:opacity-40 disabled:shadow-none transition-all"
+          >
+            {selectedSlot ? `${t("doctor.book")} ${tSlot(selectedSlot, lang)}` : t("doctor.selectSlot")}
+          </button>
         </div>
-        <button
-          disabled={!selectedSlot}
-          onClick={() => selectedSlot && onBook(selectedSlot)}
-          className="w-full py-3.5 rounded-2xl bg-gradient-primary text-primary-foreground font-semibold shadow-card disabled:opacity-40 disabled:shadow-none transition-all"
-        >
-          {selectedSlot ? `${t("doctor.book")} ${tSlot(selectedSlot, lang)}` : t("doctor.selectSlot")}
-        </button>
       </div>
     </div>
   );
