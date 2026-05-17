@@ -342,7 +342,7 @@ function HomeTab({
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${active ? "bg-card/20" : "bg-primary-soft"}`}>
                   <Icon className={`w-5 h-5 ${active ? "text-primary-foreground" : "text-primary"}`} />
                 </div>
-                <span className="text-[10px] font-medium leading-tight text-center">{t(`spec.${s.id}`)}</span>
+                <span className="text-[10px] font-medium leading-tight text-center break-words hyphens-auto w-full">{t(`spec.${s.id}`)}</span>
               </button>
             );
           })}
