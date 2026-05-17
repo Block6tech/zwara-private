@@ -482,7 +482,7 @@ function AllDoctorsScreen({ onBack, onOpenDoctor }: { onBack: () => void; onOpen
         <p className="text-xs text-muted-foreground mb-3">
           {filtered.length} {t("common.results")}
         </p>
-        <div className="space-y-3">
+        <div className="space-y-3 lg:space-y-0 lg:grid lg:grid-cols-2 xl:grid-cols-3 lg:gap-4">
           {filtered.map((d) => (
             <DoctorCard key={d.id} doctor={d} onClick={() => onOpenDoctor(d.id)} />
           ))}
