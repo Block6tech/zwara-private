@@ -85,8 +85,8 @@ export function ZwaraApp() {
 
   return (
     <MobileShell>
-      {/* Status bar */}
-      <div className="h-6 md:h-8 px-6 pt-2 flex items-center justify-between text-[11px] font-semibold text-foreground/80">
+      {/* Status bar — phone preview only */}
+      <div className="h-6 md:h-8 lg:hidden px-6 pt-2 flex items-center justify-between text-[11px] font-semibold text-foreground/80">
         <span>9:41</span>
         <div className="flex items-center gap-1">
           <span>●●●●</span>
