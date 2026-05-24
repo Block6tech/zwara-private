@@ -1255,6 +1255,20 @@ function SideMenu({
             onClick={toggle}
           />
           <MenuItem icon={LifeBuoy} label={t("menu.help")} onClick={() => onNav({ name: "help" })} />
+          <a href="/admin" className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-secondary transition-colors text-start">
+            <div className="w-9 h-9 rounded-xl bg-primary-soft flex items-center justify-center">
+              <ShieldCheck className="w-4 h-4 text-primary" />
+            </div>
+            <span className="flex-1 text-sm font-medium">Admin Panel</span>
+            <ChevronRight className="w-4 h-4 text-muted-foreground rtl:rotate-180" />
+          </a>
+          <a href="/doctor" className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-secondary transition-colors text-start">
+            <div className="w-9 h-9 rounded-xl bg-primary-soft flex items-center justify-center">
+              <Stethoscope className="w-4 h-4 text-primary" />
+            </div>
+            <span className="flex-1 text-sm font-medium">Doctor Panel</span>
+            <ChevronRight className="w-4 h-4 text-muted-foreground rtl:rotate-180" />
+          </a>
         </nav>
         <div className="p-4 border-t border-border flex flex-col items-center text-center">
           <img src={logo} alt="Zwara Tabeya" className="w-12 h-12 object-contain mb-1" />
