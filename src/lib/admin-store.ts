@@ -92,4 +92,9 @@ export const adminActions = {
     setState((s) => ({ ...s, events: s.events.map((x) => x.id === id ? { ...x, ...patch } : x) })),
   setApptStatus: (id: string, status: ApptStatus, note?: string) =>
     setState((s) => ({ ...s, appointments: s.appointments.map((a) => a.id === id ? { ...a, status, note: note ?? a.note } : a) })),
+  addVideo: (video: Omit<VideoItem, "id"> & { id?: string }) =>
+    setState((s) => {
+      const id = video.id ?? `v_${Date.now()}`;
+      return { ...s, videos: [{ ...video, id, approval: "Approved" as ApprovalStatus }, ...s.videos] };
+    }),
 };
