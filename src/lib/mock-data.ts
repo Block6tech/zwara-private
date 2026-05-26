@@ -219,6 +219,8 @@ export type VideoItem = {
   category: "Awareness" | "Documentaries" | "Campaigns";
   duration: string;
   thumbColor: string;
+  youtubeUrl?: string;
+  youtubeId?: string;
 };
 
 export const videos: VideoItem[] = [
