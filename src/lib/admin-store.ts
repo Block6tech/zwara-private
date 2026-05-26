@@ -97,4 +97,19 @@ export const adminActions = {
       const id = video.id ?? `v_${Date.now()}`;
       return { ...s, videos: [{ ...video, id, approval: "Approved" as ApprovalStatus }, ...s.videos] };
     }),
+  addSpecialty: (sp: Omit<Specialty, "id"> & { id?: string }) =>
+    setState((s) => {
+      const id = sp.id ?? `sp_${Date.now()}`;
+      return { ...s, specialties: [{ ...sp, id, approval: "Approved" as ApprovalStatus }, ...s.specialties] };
+    }),
+  addEvent: (ev: Omit<EventItem, "id"> & { id?: string }) =>
+    setState((s) => {
+      const id = ev.id ?? `e_${Date.now()}`;
+      return { ...s, events: [{ ...ev, id, approval: "Approved" as ApprovalStatus }, ...s.events] };
+    }),
+  addQA: (q: Omit<QAItem, "id"> & { id?: string }) =>
+    setState((s) => {
+      const id = q.id ?? `q_${Date.now()}`;
+      return { ...s, qa: [{ ...q, id, approval: "Approved" as ApprovalStatus }, ...s.qa] };
+    }),
 };
