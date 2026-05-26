@@ -76,7 +76,7 @@ function AdminPage() {
           <TabsContent value="specialties"><SpecialtiesTab /></TabsContent>
           <TabsContent value="events"><EventsTab /></TabsContent>
           <TabsContent value="videos"><VideosTab /></TabsContent>
-          <TabsContent value="qa"><GenericTab kind="qa" /></TabsContent>
+          <TabsContent value="qa"><QATab /></TabsContent>
         </Tabs>
       </main>
       <Toaster position="top-center" />
