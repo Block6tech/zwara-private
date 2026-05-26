@@ -75,7 +75,7 @@ function AdminPage() {
           <TabsContent value="appointments"><AppointmentsTab role="admin" /></TabsContent>
           <TabsContent value="specialties"><SpecialtiesTab /></TabsContent>
           <TabsContent value="events"><EventsTab /></TabsContent>
-          <TabsContent value="videos"><GenericTab kind="videos" /></TabsContent>
+          <TabsContent value="videos"><VideosTab /></TabsContent>
           <TabsContent value="qa"><GenericTab kind="qa" /></TabsContent>
         </Tabs>
       </main>
