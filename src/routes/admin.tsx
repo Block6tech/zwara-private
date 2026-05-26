@@ -356,3 +356,109 @@ function GenericTab({ kind }: { kind: "videos" | "qa" }) {
     </Card>
   );
 }
+
+function parseYouTubeId(url: string): string | null {
+  try {
+    const u = new URL(url.trim());
+    if (u.hostname === "youtu.be") return u.pathname.slice(1) || null;
+    if (u.hostname.includes("youtube.com")) {
+      if (u.pathname === "/watch") return u.searchParams.get("v");
+      const parts = u.pathname.split("/").filter(Boolean);
+      if (parts[0] === "shorts" || parts[0] === "embed") return parts[1] ?? null;
+    }
+    return null;
+  } catch { return null; }
+}
+
+function VideosTab() {
+  const s = useAdminStore();
+  const [open, setOpen] = useState(false);
+  const [title, setTitle] = useState("");
+  const [channel, setChannel] = useState("");
+  const [category, setCategory] = useState<"Awareness" | "Documentaries" | "Campaigns">("Awareness");
+  const [duration, setDuration] = useState("");
+  const [url, setUrl] = useState("");
+
+  const reset = () => { setTitle(""); setChannel(""); setCategory("Awareness"); setDuration(""); setUrl(""); };
+
+  const submit = () => {
+    const ytId = parseYouTubeId(url);
+    if (!title.trim()) return toast.error("Title required");
+    if (!ytId) return toast.error("Invalid YouTube URL");
+    adminActions.addVideo({
+      title: title.trim(),
+      channel: channel.trim() || "Unknown",
+      category,
+      duration: duration.trim() || "—",
+      thumbColor: "oklch(0.65 0.14 250)",
+      youtubeUrl: url.trim(),
+      youtubeId: ytId,
+    });
+    toast.success("Video added");
+    reset();
+    setOpen(false);
+  };
+
+  return (
+    <Card className="mt-4">
+      <CardHeader className="flex-row items-center justify-between gap-3">
+        <CardTitle>Videos</CardTitle>
+        <Button size="sm" onClick={() => setOpen(true)}>New video</Button>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader><TableRow><TableHead>Thumb</TableHead><TableHead>Title</TableHead><TableHead>Channel</TableHead><TableHead>Category</TableHead><TableHead>Status</TableHead><TableHead className="text-right">Actions</TableHead></TableRow></TableHeader>
+          <TableBody>
+            {s.videos.map((v) => (
+              <TableRow key={v.id}>
+                <TableCell>
+                  {v.youtubeId ? (
+                    <a href={v.youtubeUrl} target="_blank" rel="noreferrer">
+                      <img src={`https://img.youtube.com/vi/${v.youtubeId}/default.jpg`} alt="" className="w-20 h-12 object-cover rounded" />
+                    </a>
+                  ) : <div className="w-20 h-12 rounded" style={{ background: v.thumbColor }} />}
+                </TableCell>
+                <TableCell className="font-medium max-w-[280px] truncate">{v.title}</TableCell>
+                <TableCell>{v.channel}</TableCell>
+                <TableCell>{v.category}</TableCell>
+                <TableCell><StatusBadge status={v.approval} /></TableCell>
+                <TableCell className="text-right space-x-1">
+                  <Button size="sm" variant="outline" onClick={() => adminActions.setApproval("videos", v.id, "Approved")}><Check className="w-3.5 h-3.5" /></Button>
+                  <Button size="sm" variant="outline" onClick={() => adminActions.setApproval("videos", v.id, "Rejected")}><X className="w-3.5 h-3.5" /></Button>
+                  <Button size="sm" variant="outline" onClick={() => adminActions.deleteItem("videos", v.id)}><Trash2 className="w-3.5 h-3.5" /></Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+
+      <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) reset(); }}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>New video post</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <Field label="YouTube URL" value={url} onChange={setUrl} />
+            {parseYouTubeId(url) && (
+              <img src={`https://img.youtube.com/vi/${parseYouTubeId(url)}/mqdefault.jpg`} alt="preview" className="rounded w-full max-w-xs" />
+            )}
+            <Field label="Title" value={title} onChange={setTitle} />
+            <Field label="Channel" value={channel} onChange={setChannel} />
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground">Category</label>
+              <select value={category} onChange={(e) => setCategory(e.target.value as typeof category)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm">
+                <option value="Awareness">Awareness</option>
+                <option value="Documentaries">Documentaries</option>
+                <option value="Campaigns">Campaigns</option>
+              </select>
+            </div>
+            <Field label="Duration (e.g. 8:42)" value={duration} onChange={setDuration} />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+            <Button onClick={submit}>Publish</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </Card>
+  );
+}
