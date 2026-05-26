@@ -76,7 +76,7 @@ function AdminPage() {
           <TabsContent value="specialties"><SpecialtiesTab /></TabsContent>
           <TabsContent value="events"><EventsTab /></TabsContent>
           <TabsContent value="videos"><VideosTab /></TabsContent>
-          <TabsContent value="qa"><GenericTab kind="qa" /></TabsContent>
+          <TabsContent value="qa"><QATab /></TabsContent>
         </Tabs>
       </main>
       <Toaster position="top-center" />
@@ -277,9 +277,21 @@ export function AppointmentsTab({ role, doctorId }: { role: "admin" | "doctor"; 
 
 function SpecialtiesTab() {
   const s = useAdminStore();
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [icon, setIcon] = useState("Stethoscope");
+  const submit = () => {
+    if (!name.trim()) return toast.error("Name required");
+    adminActions.addSpecialty({ name: name.trim(), icon: icon.trim() || "Stethoscope" });
+    toast.success("Specialty added");
+    setName(""); setIcon("Stethoscope"); setOpen(false);
+  };
   return (
     <Card className="mt-4">
-      <CardHeader><CardTitle>Specialties</CardTitle></CardHeader>
+      <CardHeader className="flex-row items-center justify-between gap-3">
+        <CardTitle>Specialties</CardTitle>
+        <Button size="sm" onClick={() => setOpen(true)}>New specialty</Button>
+      </CardHeader>
       <CardContent>
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
           {s.specialties.map((sp) => (
@@ -296,15 +308,40 @@ function SpecialtiesTab() {
           ))}
         </div>
       </CardContent>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>New specialty</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <Field label="Name" value={name} onChange={setName} />
+            <Field label="Icon (lucide name, e.g. HeartPulse)" value={icon} onChange={setIcon} />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+            <Button onClick={submit}>Add</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }
 
 function EventsTab() {
   const s = useAdminStore();
+  const [open, setOpen] = useState(false);
+  const [form, setForm] = useState({ title: "", date: "", city: "", country: "", specialization: "", type: "Conference" as "Conference" | "Workshop" | "Webinar" | "Campaign", attendees: 0 });
+  const submit = () => {
+    if (!form.title.trim() || !form.date.trim()) return toast.error("Title and date required");
+    adminActions.addEvent({ ...form, attendees: Number(form.attendees) || 0 });
+    toast.success("Event added");
+    setForm({ title: "", date: "", city: "", country: "", specialization: "", type: "Conference", attendees: 0 });
+    setOpen(false);
+  };
   return (
     <Card className="mt-4">
-      <CardHeader><CardTitle>Events</CardTitle></CardHeader>
+      <CardHeader className="flex-row items-center justify-between gap-3">
+        <CardTitle>Events</CardTitle>
+        <Button size="sm" onClick={() => setOpen(true)}>New event</Button>
+      </CardHeader>
       <CardContent>
         <Table>
           <TableHeader><TableRow><TableHead>Title</TableHead><TableHead>Date</TableHead><TableHead>City</TableHead><TableHead>Status</TableHead><TableHead className="text-right">Actions</TableHead></TableRow></TableHeader>
@@ -325,6 +362,105 @@ function EventsTab() {
           </TableBody>
         </Table>
       </CardContent>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>New event</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <Field label="Title" value={form.title} onChange={(v) => setForm({ ...form, title: v })} />
+            <Field label="Date (e.g. May 22, 2026)" value={form.date} onChange={(v) => setForm({ ...form, date: v })} />
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="City" value={form.city} onChange={(v) => setForm({ ...form, city: v })} />
+              <Field label="Country" value={form.country} onChange={(v) => setForm({ ...form, country: v })} />
+            </div>
+            <Field label="Specialization" value={form.specialization} onChange={(v) => setForm({ ...form, specialization: v })} />
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-muted-foreground">Type</label>
+                <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value as typeof form.type })} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm">
+                  <option>Conference</option><option>Workshop</option><option>Webinar</option><option>Campaign</option>
+                </select>
+              </div>
+              <Field label="Attendees" type="number" value={String(form.attendees)} onChange={(v) => setForm({ ...form, attendees: Number(v) || 0 })} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+            <Button onClick={submit}>Add</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </Card>
+  );
+}
+
+function QATab() {
+  const s = useAdminStore();
+  const [open, setOpen] = useState(false);
+  const [form, setForm] = useState({ user: "Admin", question: "", questionAr: "", category: "General", categoryAr: "عام", answerText: "", answerUser: "" });
+  const submit = () => {
+    if (!form.question.trim()) return toast.error("Question required");
+    adminActions.addQA({
+      user: form.user || "Admin",
+      question: form.question.trim(),
+      questionAr: form.questionAr.trim() || form.question.trim(),
+      category: form.category || "General",
+      categoryAr: form.categoryAr || form.category || "عام",
+      time: "just now",
+      timeAr: "الآن",
+      answer: form.answerText.trim()
+        ? { user: form.answerUser || "Admin", userAr: form.answerUser || "Admin", text: form.answerText.trim(), textAr: form.answerText.trim() }
+        : undefined,
+    });
+    toast.success("Q&A added");
+    setForm({ user: "Admin", question: "", questionAr: "", category: "General", categoryAr: "عام", answerText: "", answerUser: "" });
+    setOpen(false);
+  };
+  return (
+    <Card className="mt-4">
+      <CardHeader className="flex-row items-center justify-between gap-3">
+        <CardTitle>Q&amp;A</CardTitle>
+        <Button size="sm" onClick={() => setOpen(true)}>New Q&amp;A</Button>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader><TableRow><TableHead>Question</TableHead><TableHead>Category</TableHead><TableHead>Answered</TableHead><TableHead>Status</TableHead><TableHead className="text-right">Actions</TableHead></TableRow></TableHeader>
+          <TableBody>
+            {s.qa.map((q) => (
+              <TableRow key={q.id}>
+                <TableCell className="max-w-[360px] truncate">{q.question}</TableCell>
+                <TableCell>{q.category}</TableCell>
+                <TableCell>{q.answer ? "Yes" : "—"}</TableCell>
+                <TableCell><StatusBadge status={q.approval} /></TableCell>
+                <TableCell className="text-right space-x-1">
+                  <Button size="sm" variant="outline" onClick={() => adminActions.setApproval("qa", q.id, "Approved")}><Check className="w-3.5 h-3.5" /></Button>
+                  <Button size="sm" variant="outline" onClick={() => adminActions.setApproval("qa", q.id, "Rejected")}><X className="w-3.5 h-3.5" /></Button>
+                  <Button size="sm" variant="outline" onClick={() => adminActions.deleteItem("qa", q.id)}><Trash2 className="w-3.5 h-3.5" /></Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>New Q&amp;A</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <Field label="Asked by" value={form.user} onChange={(v) => setForm({ ...form, user: v })} />
+            <Field label="Question (EN)" multiline value={form.question} onChange={(v) => setForm({ ...form, question: v })} />
+            <Field label="Question (AR)" multiline value={form.questionAr} onChange={(v) => setForm({ ...form, questionAr: v })} />
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Category (EN)" value={form.category} onChange={(v) => setForm({ ...form, category: v })} />
+              <Field label="Category (AR)" value={form.categoryAr} onChange={(v) => setForm({ ...form, categoryAr: v })} />
+            </div>
+            <Field label="Answer (optional)" multiline value={form.answerText} onChange={(v) => setForm({ ...form, answerText: v })} />
+            <Field label="Answered by" value={form.answerUser} onChange={(v) => setForm({ ...form, answerUser: v })} />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+            <Button onClick={submit}>Add</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }
