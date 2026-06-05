@@ -72,14 +72,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "Zwara tabyea" },
+      { name: "description", content: "Zwara Tabeya is a healthcare app for discovering and booking doctors." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "Zwara tabyea" },
+      { property: "og:description", content: "Zwara Tabeya is a healthcare app for discovering and booking doctors." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Zwara tabyea" },
+      { name: "twitter:description", content: "Zwara Tabeya is a healthcare app for discovering and booking doctors." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/72911392-d659-4331-b50a-48ee63118e00/id-preview-3c524be1--520fc867-64f8-4345-8add-ac16e00ad489.lovable.app-1779800361753.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/72911392-d659-4331-b50a-48ee63118e00/id-preview-3c524be1--520fc867-64f8-4345-8add-ac16e00ad489.lovable.app-1779800361753.png" },
     ],
     links: [
       {
