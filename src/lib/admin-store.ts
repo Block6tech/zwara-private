@@ -126,4 +126,26 @@ export const adminActions = {
       const id = q.id ?? `q_${Date.now()}`;
       return { ...s, qa: [{ ...q, id, approval: "Approved" as ApprovalStatus }, ...s.qa] };
     }),
+  createDoctorAccount: (doctorId: string, username: string, password: string) =>
+    setState((s) => {
+      const uname = username.trim().toLowerCase();
+      const others = s.accounts.filter((a) => a.doctorId !== doctorId);
+      if (others.some((a) => a.username.toLowerCase() === uname)) {
+        throw new Error("Username already taken");
+      }
+      const acc: DoctorAccount = { doctorId, username: uname, password, mustChangePassword: true, createdAt: new Date().toISOString() };
+      return { ...s, accounts: [...others, acc] };
+    }),
+  removeDoctorAccount: (doctorId: string) =>
+    setState((s) => ({ ...s, accounts: s.accounts.filter((a) => a.doctorId !== doctorId), session: s.session?.doctorId === doctorId ? null : s.session })),
+  doctorLogin: (username: string, password: string): { ok: true; doctorId: string } | { ok: false; error: string } => {
+    const s = getState();
+    const acc = s.accounts.find((a) => a.username.toLowerCase() === username.trim().toLowerCase());
+    if (!acc || acc.password !== password) return { ok: false, error: "Invalid username or password" };
+    setState((st) => ({ ...st, session: { doctorId: acc.doctorId } }));
+    return { ok: true, doctorId: acc.doctorId };
+  },
+  doctorLogout: () => setState((s) => ({ ...s, session: null })),
+  changeDoctorPassword: (doctorId: string, newPassword: string) =>
+    setState((s) => ({ ...s, accounts: s.accounts.map((a) => a.doctorId === doctorId ? { ...a, password: newPassword, mustChangePassword: false } : a) })),
 };
