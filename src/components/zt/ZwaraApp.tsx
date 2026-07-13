@@ -275,7 +275,7 @@ function HomeTab({
   return (
     <div className="flex-1 overflow-y-auto pb-4">
       <header className="px-5 pt-3 pb-4 bg-gradient-hero">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-4 lg:hidden">
           <button onClick={onOpenMenu} className="p-2 -ms-2 rounded-xl hover:bg-card/60">
             <Menu className="w-6 h-6 text-foreground" />
           </button>
@@ -944,7 +944,7 @@ function AwarenessTab({ onOpenMenu, userTag }: { onOpenMenu: () => void; userTag
   return (
     <div className="flex-1 overflow-y-auto pb-4">
       <header className="px-5 pt-3 pb-4 bg-gradient-hero">
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-3 lg:hidden">
           <button onClick={onOpenMenu} className="p-2 -ms-2"><Menu className="w-6 h-6" /></button>
           <div className="flex items-center gap-2">
             <img src={logo} alt="Zwara Tabeya" className="w-7 h-7 object-contain" />
@@ -1063,7 +1063,7 @@ function EventsTab({ onOpenMenu }: { onOpenMenu: () => void }) {
   return (
     <div className="flex-1 overflow-y-auto pb-4">
       <header className="px-5 pt-3 pb-4 bg-gradient-hero">
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-3 lg:hidden">
           <button onClick={onOpenMenu} className="p-2 -ms-2"><Menu className="w-6 h-6" /></button>
           <div className="flex items-center gap-2">
             <img src={logo} alt="Zwara Tabeya" className="w-7 h-7 object-contain" />
