@@ -14,6 +14,14 @@ export type Appointment = {
 
 export type ApprovalStatus = "Pending" | "Approved" | "Rejected";
 
+export type DoctorAccount = {
+  doctorId: string;
+  username: string;
+  password: string; // demo only — plain text in localStorage
+  mustChangePassword: boolean;
+  createdAt: string;
+};
+
 type Store = {
   doctors: (Doctor & { approval: ApprovalStatus })[];
   specialties: (Specialty & { approval: ApprovalStatus })[];
@@ -21,6 +29,8 @@ type Store = {
   videos: (VideoItem & { approval: ApprovalStatus })[];
   qa: (QAItem & { approval: ApprovalStatus })[];
   appointments: Appointment[];
+  accounts: DoctorAccount[];
+  session: { doctorId: string } | null;
 };
 
 const KEY = "zwara_admin_store_v1";
