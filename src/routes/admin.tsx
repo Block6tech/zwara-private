@@ -600,3 +600,98 @@ function VideosTab() {
     </Card>
   );
 }
+
+function AccountsTab() {
+  const s = useAdminStore();
+  const [doctorId, setDoctorId] = useState<string>("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [created, setCreated] = useState<{ username: string; password: string; name: string } | null>(null);
+
+  const accountsByDoctor = new Map(s.accounts.map((a) => [a.doctorId, a]));
+  const withoutAccounts = s.doctors.filter((d) => !accountsByDoctor.has(d.id));
+
+  const genPassword = () => Math.random().toString(36).slice(-10);
+
+  const submit = () => {
+    if (!doctorId) return toast.error("Select a doctor");
+    if (!username.trim()) return toast.error("Username required");
+    if (password.length < 6) return toast.error("Password must be at least 6 characters");
+    try {
+      adminActions.createDoctorAccount(doctorId, username, password);
+      const doc = s.doctors.find((d) => d.id === doctorId);
+      setCreated({ username: username.trim().toLowerCase(), password, name: doc?.name ?? "" });
+      setDoctorId(""); setUsername(""); setPassword("");
+      toast.success("Account created");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed");
+    }
+  };
+
+  return (
+    <Card className="mt-4">
+      <CardHeader><CardTitle>Doctor accounts</CardTitle></CardHeader>
+      <CardContent className="space-y-6">
+        <div className="rounded-lg border p-4 space-y-3">
+          <div className="font-semibold">Create login for a doctor</div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+            <select value={doctorId} onChange={(e) => setDoctorId(e.target.value)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm">
+              <option value="">Select doctor…</option>
+              {withoutAccounts.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+            </select>
+            <Input placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
+            <div className="flex gap-2">
+              <Input placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
+              <Button type="button" variant="outline" onClick={() => setPassword(genPassword())}>Gen</Button>
+            </div>
+            <Button onClick={submit}>Create</Button>
+          </div>
+          <p className="text-xs text-muted-foreground">The doctor uses these credentials at <Link to="/doctor" className="text-primary underline">/doctor</Link> to sign in and manage their profile & appointments.</p>
+        </div>
+
+        {created && (
+          <div className="rounded-lg border border-success/40 bg-success/10 p-4">
+            <div className="font-semibold mb-1">Credentials for {created.name}</div>
+            <div className="text-sm">Username: <code className="bg-background px-1.5 py-0.5 rounded">{created.username}</code></div>
+            <div className="text-sm">Password: <code className="bg-background px-1.5 py-0.5 rounded">{created.password}</code></div>
+            <p className="text-xs text-muted-foreground mt-2">Copy & share these now. The password is hidden after leaving this tab.</p>
+          </div>
+        )}
+
+        <div>
+          <div className="font-semibold mb-2">Existing accounts</div>
+          <Table>
+            <TableHeader><TableRow><TableHead>Doctor</TableHead><TableHead>Username</TableHead><TableHead>Must change</TableHead><TableHead>Created</TableHead><TableHead className="text-right">Actions</TableHead></TableRow></TableHeader>
+            <TableBody>
+              {s.accounts.length === 0 && (
+                <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground">No accounts yet.</TableCell></TableRow>
+              )}
+              {s.accounts.map((a) => {
+                const doc = s.doctors.find((d) => d.id === a.doctorId);
+                return (
+                  <TableRow key={a.doctorId}>
+                    <TableCell className="font-medium">{doc?.name ?? a.doctorId}</TableCell>
+                    <TableCell><code>{a.username}</code></TableCell>
+                    <TableCell>{a.mustChangePassword ? "Yes" : "No"}</TableCell>
+                    <TableCell>{new Date(a.createdAt).toLocaleDateString()}</TableCell>
+                    <TableCell className="text-right space-x-1">
+                      <Button size="sm" variant="outline" onClick={() => {
+                        const p = genPassword();
+                        adminActions.changeDoctorPassword(a.doctorId, p);
+                        setCreated({ username: a.username, password: p, name: doc?.name ?? "" });
+                        toast.success("Password reset");
+                      }}>Reset password</Button>
+                      <Button size="sm" variant="outline" onClick={() => { adminActions.removeDoctorAccount(a.doctorId); toast.success("Account removed"); }}>
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
