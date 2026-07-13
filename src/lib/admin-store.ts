@@ -50,6 +50,8 @@ function seed(): Store {
       { id: "a5", doctorId: "d4", patient: "Hassan", slot: "Today 7:00 PM", status: "Pending", createdAt: "10m ago" },
       { id: "a6", doctorId: "d1", patient: "Nadia", slot: "Last Mon 11:00 AM", status: "Completed", createdAt: "5d ago" },
     ],
+    accounts: [],
+    session: null,
   };
 }
 
