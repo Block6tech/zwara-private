@@ -64,6 +64,7 @@ function AdminPage() {
         <Tabs defaultValue="doctors">
           <TabsList className="flex-wrap h-auto">
             <TabsTrigger value="doctors">Doctors</TabsTrigger>
+            <TabsTrigger value="accounts">Doctor accounts</TabsTrigger>
             <TabsTrigger value="appointments">Appointments</TabsTrigger>
             <TabsTrigger value="specialties">Specialties</TabsTrigger>
             <TabsTrigger value="events">Events</TabsTrigger>
@@ -72,6 +73,7 @@ function AdminPage() {
           </TabsList>
 
           <TabsContent value="doctors"><DoctorsTab /></TabsContent>
+          <TabsContent value="accounts"><AccountsTab /></TabsContent>
           <TabsContent value="appointments"><AppointmentsTab role="admin" /></TabsContent>
           <TabsContent value="specialties"><SpecialtiesTab /></TabsContent>
           <TabsContent value="events"><EventsTab /></TabsContent>
