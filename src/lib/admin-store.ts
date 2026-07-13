@@ -60,7 +60,9 @@ function load(): Store {
   try {
     const raw = localStorage.getItem(KEY);
     if (!raw) return seed();
-    return JSON.parse(raw) as Store;
+    const parsed = JSON.parse(raw) as Partial<Store>;
+    const base = seed();
+    return { ...base, ...parsed, accounts: parsed.accounts ?? [], session: parsed.session ?? null };
   } catch {
     return seed();
   }
