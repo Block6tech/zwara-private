@@ -275,7 +275,7 @@ function HomeTab({
   return (
     <div className="flex-1 overflow-y-auto pb-4">
       <header className="px-5 pt-3 pb-4 bg-gradient-hero">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-4 lg:hidden">
           <button onClick={onOpenMenu} className="p-2 -ms-2 rounded-xl hover:bg-card/60">
             <Menu className="w-6 h-6 text-foreground" />
           </button>
