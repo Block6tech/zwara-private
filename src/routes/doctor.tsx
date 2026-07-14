@@ -131,59 +131,161 @@ function ProfileEditor({ doctorId }: { doctorId: string }) {
   const [form, setForm] = useState(() => ({
     name: doc?.name ?? "",
     nameAr: doc?.nameAr ?? "",
+    photoUrl: doc?.photoUrl ?? "",
     specialization: doc?.specialization ?? "",
     subspecialty: doc?.subspecialty ?? "",
-    city: doc?.city ?? "",
-    fee: doc?.fee ?? 0,
     bio: doc?.bio ?? "",
     bioAr: doc?.bioAr ?? "",
-    experienceYears: doc?.experienceYears ?? 0,
+    nationality: doc?.nationality ?? "",
     languages: (doc?.languages ?? []).join(", "),
     expertise: (doc?.expertise ?? []).join(", "),
+    degrees: (doc?.degrees ?? []).join(", "),
+    certifications: (doc?.certifications ?? []).join(", "),
+    affiliations: (doc?.affiliations ?? []).join(", "),
+    experienceYears: doc?.experienceYears ?? 0,
+    workHistory: (doc?.workHistory ?? []).map((w) => `${w.role} @ ${w.place} (${w.period})`).join("\n"),
+    clinicName: doc?.clinicName ?? "",
+    clinicAddress: doc?.clinicAddress ?? "",
+    city: doc?.city ?? "",
+    phone: doc?.phone ?? "",
+    email: doc?.email ?? "",
+    fee: doc?.fee ?? 0,
   }));
   if (!doc) return null;
 
+  const onPhoto = (file?: File | null) => {
+    if (!file) return;
+    if (file.size > 2_000_000) { toast.error("Image must be under 2MB"); return; }
+    const reader = new FileReader();
+    reader.onload = () => setForm((f) => ({ ...f, photoUrl: String(reader.result) }));
+    reader.readAsDataURL(file);
+  };
+
   const save = () => {
+    const workHistory = form.workHistory
+      .split("\n").map((l) => l.trim()).filter(Boolean)
+      .map((line) => {
+        const m = line.match(/^(.*?)\s*@\s*(.*?)\s*\((.*)\)\s*$/);
+        return m ? { role: m[1], place: m[2], period: m[3] } : { role: line, place: "", period: "" };
+      });
     adminActions.editDoctor(doctorId, {
       name: form.name.trim(),
       nameAr: form.nameAr.trim(),
+      photoUrl: form.photoUrl || undefined,
       specialization: form.specialization.trim(),
       subspecialty: form.subspecialty.trim(),
-      city: form.city.trim(),
-      fee: Number(form.fee) || 0,
       bio: form.bio.trim(),
       bioAr: form.bioAr.trim(),
-      experienceYears: Number(form.experienceYears) || 0,
+      nationality: form.nationality.trim(),
       languages: form.languages.split(",").map((x) => x.trim()).filter(Boolean),
       expertise: form.expertise.split(",").map((x) => x.trim()).filter(Boolean),
+      degrees: form.degrees.split(",").map((x) => x.trim()).filter(Boolean),
+      certifications: form.certifications.split(",").map((x) => x.trim()).filter(Boolean),
+      affiliations: form.affiliations.split(",").map((x) => x.trim()).filter(Boolean),
+      experienceYears: Number(form.experienceYears) || 0,
+      workHistory,
+      clinicName: form.clinicName.trim(),
+      clinicAddress: form.clinicAddress.trim(),
+      city: form.city.trim(),
+      phone: form.phone.trim(),
+      email: form.email.trim(),
+      fee: Number(form.fee) || 0,
     });
     toast.success("Profile updated");
   };
 
-  const F = ({ label, children }: { label: string; children: React.ReactNode }) => (
-    <div className="space-y-1"><label className="text-xs font-medium text-muted-foreground">{label}</label>{children}</div>
+  const F = ({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) => (
+    <div className="space-y-1">
+      <label className="text-xs font-medium text-muted-foreground">{label}</label>
+      {children}
+      {hint && <p className="text-[11px] text-muted-foreground">{hint}</p>}
+    </div>
   );
 
+  const initials = (form.name || "Dr").replace("Dr. ", "").split(" ").map((s) => s[0]).slice(0, 2).join("");
+
   return (
-    <Card className="mt-4">
-      <CardHeader><CardTitle>My profile</CardTitle></CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid md:grid-cols-2 gap-4">
-          <F label="Name (EN)"><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></F>
-          <F label="Name (AR)"><Input value={form.nameAr} onChange={(e) => setForm({ ...form, nameAr: e.target.value })} dir="rtl" /></F>
-          <F label="Specialization"><Input value={form.specialization} onChange={(e) => setForm({ ...form, specialization: e.target.value })} /></F>
-          <F label="Subspecialty"><Input value={form.subspecialty} onChange={(e) => setForm({ ...form, subspecialty: e.target.value })} /></F>
-          <F label="City"><Input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} /></F>
-          <F label="Fee (KWD)"><Input type="number" value={form.fee} onChange={(e) => setForm({ ...form, fee: Number(e.target.value) })} /></F>
-          <F label="Experience (years)"><Input type="number" value={form.experienceYears} onChange={(e) => setForm({ ...form, experienceYears: Number(e.target.value) })} /></F>
-          <F label="Languages (comma-separated)"><Input value={form.languages} onChange={(e) => setForm({ ...form, languages: e.target.value })} /></F>
-          <F label="Expertise (comma-separated)"><Input value={form.expertise} onChange={(e) => setForm({ ...form, expertise: e.target.value })} /></F>
-        </div>
-        <F label="Bio (EN)"><Textarea rows={3} value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} /></F>
-        <F label="Bio (AR)"><Textarea rows={3} value={form.bioAr} onChange={(e) => setForm({ ...form, bioAr: e.target.value })} dir="rtl" /></F>
-        <div className="flex justify-end"><Button onClick={save}>Save changes</Button></div>
-      </CardContent>
-    </Card>
+    <div className="space-y-4 mt-4">
+      <Card>
+        <CardHeader><CardTitle>Basic information</CardTitle></CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              {form.photoUrl ? (
+                <img src={form.photoUrl} alt="Profile" className="w-20 h-20 rounded-full object-cover border" />
+              ) : (
+                <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center text-lg font-semibold">{initials}</div>
+              )}
+            </div>
+            <div className="space-y-2">
+              <label className="inline-block">
+                <input type="file" accept="image/*" className="hidden" onChange={(e) => onPhoto(e.target.files?.[0])} />
+                <span className="inline-flex items-center px-3 py-1.5 text-sm rounded-md border cursor-pointer hover:bg-muted">Upload photo</span>
+              </label>
+              {form.photoUrl && (
+                <Button size="sm" variant="ghost" onClick={() => setForm({ ...form, photoUrl: "" })}>Remove</Button>
+              )}
+              <p className="text-[11px] text-muted-foreground">JPG/PNG, up to 2MB.</p>
+            </div>
+          </div>
+          <div className="grid md:grid-cols-2 gap-4">
+            <F label="Full name (EN)"><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></F>
+            <F label="Full name (AR)"><Input value={form.nameAr} onChange={(e) => setForm({ ...form, nameAr: e.target.value })} dir="rtl" /></F>
+            <F label="Nationality"><Input value={form.nationality} onChange={(e) => setForm({ ...form, nationality: e.target.value })} /></F>
+            <F label="Languages" hint="Comma-separated (e.g. Arabic, English)"><Input value={form.languages} onChange={(e) => setForm({ ...form, languages: e.target.value })} /></F>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader><CardTitle>Specialization</CardTitle></CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid md:grid-cols-2 gap-4">
+            <F label="Specialization"><Input value={form.specialization} onChange={(e) => setForm({ ...form, specialization: e.target.value })} /></F>
+            <F label="Sub-specialization"><Input value={form.subspecialty} onChange={(e) => setForm({ ...form, subspecialty: e.target.value })} /></F>
+          </div>
+          <F label="Areas of expertise" hint="Comma-separated"><Input value={form.expertise} onChange={(e) => setForm({ ...form, expertise: e.target.value })} /></F>
+          <F label="About / Bio (EN)"><Textarea rows={3} value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} /></F>
+          <F label="About / Bio (AR)"><Textarea rows={3} value={form.bioAr} onChange={(e) => setForm({ ...form, bioAr: e.target.value })} dir="rtl" /></F>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader><CardTitle>Credentials & experience</CardTitle></CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid md:grid-cols-2 gap-4">
+            <F label="Degrees" hint="Comma-separated (e.g. MBBCh, MSc, PhD)"><Input value={form.degrees} onChange={(e) => setForm({ ...form, degrees: e.target.value })} /></F>
+            <F label="Certifications" hint="Comma-separated"><Input value={form.certifications} onChange={(e) => setForm({ ...form, certifications: e.target.value })} /></F>
+            <F label="Medical affiliations" hint="Comma-separated"><Input value={form.affiliations} onChange={(e) => setForm({ ...form, affiliations: e.target.value })} /></F>
+            <F label="Years of experience"><Input type="number" min={0} value={form.experienceYears} onChange={(e) => setForm({ ...form, experienceYears: Number(e.target.value) })} /></F>
+          </div>
+          <F label="Work experience" hint="One per line — format: Role @ Place (Period)">
+            <Textarea rows={4} value={form.workHistory} onChange={(e) => setForm({ ...form, workHistory: e.target.value })}
+              placeholder={"Consultant Cardiologist @ Chest Diseases Hospital (2018 – Present)"} />
+          </F>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader><CardTitle>Clinic & contact</CardTitle></CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid md:grid-cols-2 gap-4">
+            <F label="Clinic name"><Input value={form.clinicName} onChange={(e) => setForm({ ...form, clinicName: e.target.value })} /></F>
+            <F label="City"><Input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} /></F>
+          </div>
+          <F label="Clinic address"><Textarea rows={2} value={form.clinicAddress} onChange={(e) => setForm({ ...form, clinicAddress: e.target.value })} /></F>
+          <div className="grid md:grid-cols-2 gap-4">
+            <F label="Phone"><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="+965 ..." /></F>
+            <F label="Email"><Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></F>
+            <F label="Consultation fee (KWD)"><Input type="number" min={0} value={form.fee} onChange={(e) => setForm({ ...form, fee: Number(e.target.value) })} /></F>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="flex justify-end sticky bottom-4">
+        <Button onClick={save} size="lg" className="shadow-lg">Save changes</Button>
+      </div>
+    </div>
   );
 }
 
