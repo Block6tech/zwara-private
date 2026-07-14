@@ -73,6 +73,7 @@ type Store = {
   patients: Patient[];
   reviews: ReviewItem[];
   settings: AppSettings;
+  locations: Location[];
   session: { doctorId: string } | null;
 };
 
