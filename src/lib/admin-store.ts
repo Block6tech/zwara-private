@@ -22,6 +22,18 @@ export type DoctorAccount = {
   createdAt: string;
 };
 
+export type PatientStatus = "Active" | "Suspended";
+export type Patient = {
+  id: string;
+  name: string;
+  phone: string;
+  email?: string;
+  city?: string;
+  status: PatientStatus;
+  suspensionReason?: string;
+  createdAt: string;
+};
+
 type Store = {
   doctors: (Doctor & { approval: ApprovalStatus })[];
   specialties: (Specialty & { approval: ApprovalStatus })[];
