@@ -11,6 +11,7 @@ import { DoctorAvatar } from "./Avatar";
 import { MobileShell } from "./MobileShell";
 import { toast } from "sonner";
 import { useI18n } from "@/lib/i18n";
+import { useAdminStore } from "@/lib/admin-store";
 import logo from "@/assets/logo.png";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
