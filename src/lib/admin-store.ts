@@ -42,6 +42,7 @@ type Store = {
   qa: (QAItem & { approval: ApprovalStatus })[];
   appointments: Appointment[];
   accounts: DoctorAccount[];
+  patients: Patient[];
   session: { doctorId: string } | null;
 };
 
