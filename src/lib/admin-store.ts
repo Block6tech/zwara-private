@@ -169,4 +169,10 @@ export const adminActions = {
   doctorLogout: () => setState((s) => ({ ...s, session: null })),
   changeDoctorPassword: (doctorId: string, newPassword: string) =>
     setState((s) => ({ ...s, accounts: s.accounts.map((a) => a.doctorId === doctorId ? { ...a, password: newPassword, mustChangePassword: false } : a) })),
+  suspendPatient: (id: string, reason: string) =>
+    setState((s) => ({ ...s, patients: s.patients.map((p) => p.id === id ? { ...p, status: "Suspended", suspensionReason: reason } : p) })),
+  activatePatient: (id: string) =>
+    setState((s) => ({ ...s, patients: s.patients.map((p) => p.id === id ? { ...p, status: "Active", suspensionReason: undefined } : p) })),
+  deletePatient: (id: string) =>
+    setState((s) => ({ ...s, patients: s.patients.filter((p) => p.id !== id) })),
 };
