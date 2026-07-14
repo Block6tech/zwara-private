@@ -162,18 +162,12 @@ function DoctorsTab() {
       </CardContent>
 
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEdit(null)}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Edit doctor</DialogTitle></DialogHeader>
-          {editing && (
-            <div className="space-y-3">
-              <Field label="Name" value={editing.name} onChange={(v) => adminActions.editDoctor(editing.id, { name: v })} />
-              <Field label="Specialization" value={editing.specialization} onChange={(v) => adminActions.editDoctor(editing.id, { specialization: v })} />
-              <Field label="City" value={editing.city} onChange={(v) => adminActions.editDoctor(editing.id, { city: v })} />
-              <Field label="Fee" type="number" value={String(editing.fee)} onChange={(v) => adminActions.editDoctor(editing.id, { fee: Number(v) || 0 })} />
-              <Field label="Bio" multiline value={editing.bio} onChange={(v) => adminActions.editDoctor(editing.id, { bio: v })} />
-            </div>
-          )}
-          <DialogFooter><Button onClick={() => { setEdit(null); toast.success("Saved"); }}>Done</Button></DialogFooter>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit doctor{editing ? ` — ${editing.name}` : ""}</DialogTitle>
+          </DialogHeader>
+          {editing && <ProfileEditor doctorId={editing.id} />}
+          <DialogFooter><Button variant="outline" onClick={() => setEdit(null)}>Close</Button></DialogFooter>
         </DialogContent>
       </Dialog>
     </Card>
