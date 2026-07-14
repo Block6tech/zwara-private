@@ -34,6 +34,18 @@ export type Patient = {
   createdAt: string;
 };
 
+export type ReviewStatus = "Approved" | "Hidden" | "Pending";
+export type ReviewItem = {
+  id: string;
+  doctorId: string;
+  user: string;
+  rating: number;
+  text: string;
+  textAr: string;
+  status: ReviewStatus;
+  createdAt: string;
+};
+
 type Store = {
   doctors: (Doctor & { approval: ApprovalStatus })[];
   specialties: (Specialty & { approval: ApprovalStatus })[];
@@ -43,6 +55,7 @@ type Store = {
   appointments: Appointment[];
   accounts: DoctorAccount[];
   patients: Patient[];
+  reviews: ReviewItem[];
   session: { doctorId: string } | null;
 };
 
