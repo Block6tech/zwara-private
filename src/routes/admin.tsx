@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { useAdminStore, adminActions, type Appointment, type ApprovalStatus, type Patient } from "@/lib/admin-store";
+import { useAdminStore, adminActions, type Appointment, type ApprovalStatus, type Patient, type ReviewStatus } from "@/lib/admin-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
