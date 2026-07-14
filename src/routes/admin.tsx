@@ -73,6 +73,7 @@ function AdminPage() {
             <TabsTrigger value="events">Events</TabsTrigger>
             <TabsTrigger value="videos">Videos</TabsTrigger>
             <TabsTrigger value="qa">Q&amp;A</TabsTrigger>
+            <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
 
           <TabsContent value="doctors"><DoctorsTab /></TabsContent>
@@ -84,6 +85,7 @@ function AdminPage() {
           <TabsContent value="events"><EventsTab /></TabsContent>
           <TabsContent value="videos"><VideosTab /></TabsContent>
           <TabsContent value="qa"><QATab /></TabsContent>
+          <TabsContent value="settings"><SettingsTab /></TabsContent>
         </Tabs>
       </main>
       <Toaster position="top-center" />
