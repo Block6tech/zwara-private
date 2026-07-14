@@ -106,7 +106,7 @@ function load(): Store {
     if (!raw) return seed();
     const parsed = JSON.parse(raw) as Partial<Store>;
     const base = seed();
-    return { ...base, ...parsed, accounts: parsed.accounts ?? [], patients: parsed.patients ?? base.patients, session: parsed.session ?? null };
+    return { ...base, ...parsed, accounts: parsed.accounts ?? [], patients: parsed.patients ?? base.patients, reviews: parsed.reviews ?? base.reviews, session: parsed.session ?? null };
   } catch {
     return seed();
   }
