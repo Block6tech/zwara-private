@@ -46,6 +46,13 @@ export type ReviewItem = {
   createdAt: string;
 };
 
+export type AppSettings = {
+  supportEmail: string;
+  whatsappNumber: string;
+  termsText: string;
+  privacyText: string;
+};
+
 type Store = {
   doctors: (Doctor & { approval: ApprovalStatus })[];
   specialties: (Specialty & { approval: ApprovalStatus })[];
@@ -56,6 +63,7 @@ type Store = {
   accounts: DoctorAccount[];
   patients: Patient[];
   reviews: ReviewItem[];
+  settings: AppSettings;
   session: { doctorId: string } | null;
 };
 
