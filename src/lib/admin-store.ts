@@ -238,4 +238,14 @@ export const adminActions = {
     setState((s) => ({ ...s, reviews: s.reviews.filter((r) => r.id !== id) })),
   updateSettings: (patch: Partial<AppSettings>) =>
     setState((s) => ({ ...s, settings: { ...s.settings, ...patch } })),
+  addLocation: (loc: Omit<Location, "id"> & { id?: string }) =>
+    setState((s) => {
+      const id = loc.id ?? `loc_${Date.now()}`;
+      return { ...s, locations: [...s.locations, { ...loc, id }] };
+    }),
+  editLocation: (id: string, patch: Partial<Location>) =>
+    setState((s) => ({ ...s, locations: s.locations.map((l) => l.id === id ? { ...l, ...patch } : l) })),
+  deleteLocation: (id: string) =>
+    setState((s) => ({ ...s, locations: s.locations.filter((l) => l.id !== id) })),
 };
+
