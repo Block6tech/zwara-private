@@ -198,4 +198,8 @@ export const adminActions = {
     setState((s) => ({ ...s, patients: s.patients.map((p) => p.id === id ? { ...p, status: "Active", suspensionReason: undefined } : p) })),
   deletePatient: (id: string) =>
     setState((s) => ({ ...s, patients: s.patients.filter((p) => p.id !== id) })),
+  setReviewStatus: (id: string, status: ReviewStatus) =>
+    setState((s) => ({ ...s, reviews: s.reviews.map((r) => r.id === id ? { ...r, status } : r) })),
+  deleteReview: (id: string) =>
+    setState((s) => ({ ...s, reviews: s.reviews.filter((r) => r.id !== id) })),
 };
