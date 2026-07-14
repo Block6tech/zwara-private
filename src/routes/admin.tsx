@@ -697,3 +697,135 @@ function AccountsTab() {
     </Card>
   );
 }
+
+function PatientsTab() {
+  const s = useAdminStore();
+  const [q, setQ] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"All" | "Active" | "Suspended">("All");
+  const [suspendId, setSuspendId] = useState<string | null>(null);
+  const [reason, setReason] = useState("");
+  const [viewId, setViewId] = useState<string | null>(null);
+
+  const list = useMemo(() => s.patients.filter((p) => {
+    if (statusFilter !== "All" && p.status !== statusFilter) return false;
+    const t = q.trim().toLowerCase();
+    if (!t) return true;
+    return p.name.toLowerCase().includes(t) || p.phone.toLowerCase().includes(t) || (p.email ?? "").toLowerCase().includes(t);
+  }), [s.patients, q, statusFilter]);
+
+  const viewing: Patient | undefined = s.patients.find((p) => p.id === viewId);
+  const viewingAppts = viewing ? s.appointments.filter((a) => a.patient.toLowerCase() === viewing.name.toLowerCase()) : [];
+
+  return (
+    <Card className="mt-4">
+      <CardHeader className="flex-row items-center justify-between gap-3 flex-wrap">
+        <CardTitle>Patients</CardTitle>
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex gap-1">
+            {(["All", "Active", "Suspended"] as const).map((f) => (
+              <Button key={f} size="sm" variant={statusFilter === f ? "default" : "outline"} onClick={() => setStatusFilter(f)}>{f}</Button>
+            ))}
+          </div>
+          <Input placeholder="Search name, phone, email…" value={q} onChange={(e) => setQ(e.target.value)} className="max-w-xs" />
+        </div>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Phone</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>City</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {list.map((p) => (
+              <TableRow key={p.id}>
+                <TableCell className="font-medium">{p.name}</TableCell>
+                <TableCell className="text-sm">{p.phone}</TableCell>
+                <TableCell className="text-sm text-muted-foreground">{p.email ?? "—"}</TableCell>
+                <TableCell className="text-sm">{p.city ?? "—"}</TableCell>
+                <TableCell>
+                  <Badge variant="outline" className={p.status === "Active" ? "bg-success/15 text-success border-success/30" : "bg-destructive/10 text-destructive border-destructive/30"}>
+                    {p.status}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-right space-x-1">
+                  <Button size="sm" variant="outline" onClick={() => setViewId(p.id)}>View</Button>
+                  {p.status === "Active" ? (
+                    <Button size="sm" variant="outline" onClick={() => { setSuspendId(p.id); setReason(""); }}>Suspend</Button>
+                  ) : (
+                    <Button size="sm" variant="outline" onClick={() => { adminActions.activatePatient(p.id); toast.success("Reactivated"); }}>Activate</Button>
+                  )}
+                  <Button size="sm" variant="outline" onClick={() => { if (confirm(`Delete ${p.name}? This cannot be undone.`)) { adminActions.deletePatient(p.id); toast("Patient deleted"); } }}>
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+            {list.length === 0 && (
+              <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-8">No patients</TableCell></TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </CardContent>
+
+      <Dialog open={!!suspendId} onOpenChange={(o) => !o && setSuspendId(null)}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Suspend patient</DialogTitle></DialogHeader>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Reason</label>
+            <Textarea value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Why is this patient being suspended?" />
+            <p className="text-xs text-muted-foreground">Suspended patients cannot book new appointments.</p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSuspendId(null)}>Cancel</Button>
+            <Button onClick={() => {
+              if (!reason.trim()) return toast.error("Reason required");
+              if (suspendId) { adminActions.suspendPatient(suspendId, reason.trim()); toast("Patient suspended"); }
+              setSuspendId(null);
+            }}>Suspend</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!viewing} onOpenChange={(o) => !o && setViewId(null)}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>{viewing?.name}</DialogTitle></DialogHeader>
+          {viewing && (
+            <div className="space-y-3 text-sm">
+              <div className="grid grid-cols-2 gap-3">
+                <div><div className="text-xs text-muted-foreground">Phone</div><div>{viewing.phone}</div></div>
+                <div><div className="text-xs text-muted-foreground">Email</div><div>{viewing.email ?? "—"}</div></div>
+                <div><div className="text-xs text-muted-foreground">City</div><div>{viewing.city ?? "—"}</div></div>
+                <div><div className="text-xs text-muted-foreground">Status</div><div>{viewing.status}</div></div>
+              </div>
+              {viewing.status === "Suspended" && viewing.suspensionReason && (
+                <div className="rounded border border-destructive/30 bg-destructive/5 p-2">
+                  <div className="text-xs font-medium text-destructive">Suspension reason</div>
+                  <div className="text-sm">{viewing.suspensionReason}</div>
+                </div>
+              )}
+              <div>
+                <div className="text-xs font-medium text-muted-foreground mb-1">Appointments ({viewingAppts.length})</div>
+                <div className="max-h-48 overflow-auto space-y-1">
+                  {viewingAppts.length === 0 && <div className="text-xs text-muted-foreground">No appointments yet.</div>}
+                  {viewingAppts.map((a) => (
+                    <div key={a.id} className="flex items-center justify-between text-xs rounded border p-2">
+                      <span>{a.slot}</span>
+                      <StatusBadge status={a.status} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter><Button variant="outline" onClick={() => setViewId(null)}>Close</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </Card>
+  );
+}
