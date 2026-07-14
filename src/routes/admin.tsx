@@ -52,13 +52,14 @@ function AdminPage() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-6">
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-7 gap-3 mb-6">
           <Stat label="Doctors" value={s.doctors.length} />
           <Stat label="Pending doctors" value={s.doctors.filter((d) => d.approval === "Pending").length} highlight />
           <Stat label="Patients" value={s.patients.length} />
           <Stat label="Suspended" value={s.patients.filter((p) => p.status === "Suspended").length} highlight />
           <Stat label="Appointments" value={s.appointments.length} />
           <Stat label="Pending appts" value={s.appointments.filter((a) => a.status === "Pending").length} highlight />
+          <Stat label="Pending reviews" value={s.reviews.filter((r) => r.status === "Pending").length} highlight />
         </div>
 
         <Tabs defaultValue="doctors">
