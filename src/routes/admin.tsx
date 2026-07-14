@@ -55,8 +55,8 @@ function AdminPage() {
         <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-6">
           <Stat label="Doctors" value={s.doctors.length} />
           <Stat label="Pending doctors" value={s.doctors.filter((d) => d.approval === "Pending").length} highlight />
-          <Stat label="Specialties" value={s.specialties.length} />
-          <Stat label="Events" value={s.events.length} />
+          <Stat label="Patients" value={s.patients.length} />
+          <Stat label="Suspended" value={s.patients.filter((p) => p.status === "Suspended").length} highlight />
           <Stat label="Appointments" value={s.appointments.length} />
           <Stat label="Pending appts" value={s.appointments.filter((a) => a.status === "Pending").length} highlight />
         </div>
@@ -65,6 +65,7 @@ function AdminPage() {
           <TabsList className="flex-wrap h-auto">
             <TabsTrigger value="doctors">Doctors</TabsTrigger>
             <TabsTrigger value="accounts">Doctor accounts</TabsTrigger>
+            <TabsTrigger value="patients">Patients</TabsTrigger>
             <TabsTrigger value="appointments">Appointments</TabsTrigger>
             <TabsTrigger value="specialties">Specialties</TabsTrigger>
             <TabsTrigger value="events">Events</TabsTrigger>
@@ -74,6 +75,7 @@ function AdminPage() {
 
           <TabsContent value="doctors"><DoctorsTab /></TabsContent>
           <TabsContent value="accounts"><AccountsTab /></TabsContent>
+          <TabsContent value="patients"><PatientsTab /></TabsContent>
           <TabsContent value="appointments"><AppointmentsTab role="admin" /></TabsContent>
           <TabsContent value="specialties"><SpecialtiesTab /></TabsContent>
           <TabsContent value="events"><EventsTab /></TabsContent>
