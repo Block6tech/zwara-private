@@ -216,4 +216,6 @@ export const adminActions = {
     setState((s) => ({ ...s, reviews: s.reviews.map((r) => r.id === id ? { ...r, status } : r) })),
   deleteReview: (id: string) =>
     setState((s) => ({ ...s, reviews: s.reviews.filter((r) => r.id !== id) })),
+  updateSettings: (patch: Partial<AppSettings>) =>
+    setState((s) => ({ ...s, settings: { ...s.settings, ...patch } })),
 };
