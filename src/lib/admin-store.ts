@@ -46,6 +46,13 @@ export type ReviewItem = {
   createdAt: string;
 };
 
+export type AppSettings = {
+  supportEmail: string;
+  whatsappNumber: string;
+  termsText: string;
+  privacyText: string;
+};
+
 type Store = {
   doctors: (Doctor & { approval: ApprovalStatus })[];
   specialties: (Specialty & { approval: ApprovalStatus })[];
@@ -56,6 +63,7 @@ type Store = {
   accounts: DoctorAccount[];
   patients: Patient[];
   reviews: ReviewItem[];
+  settings: AppSettings;
   session: { doctorId: string } | null;
 };
 
@@ -95,6 +103,12 @@ function seed(): Store {
       status: (di === 0 && ri === 0 ? "Pending" : "Approved") as ReviewStatus,
       createdAt: new Date(Date.now() - (di * 3 + ri) * 86400000).toISOString(),
     }))),
+    settings: {
+      supportEmail: "support@zwara-tabeya.com",
+      whatsappNumber: "+965 5000 0000",
+      termsText: "By using Zwara Tabeya you agree to our terms of service. Bookings are confirmed subject to doctor approval. Cancellations must be made at least 24 hours before the appointment.",
+      privacyText: "We collect only the information needed to provide healthcare booking services. Your data is not sold to third parties and is protected by industry-standard security.",
+    },
     session: null,
   };
 }
@@ -106,7 +120,7 @@ function load(): Store {
     if (!raw) return seed();
     const parsed = JSON.parse(raw) as Partial<Store>;
     const base = seed();
-    return { ...base, ...parsed, accounts: parsed.accounts ?? [], patients: parsed.patients ?? base.patients, reviews: parsed.reviews ?? base.reviews, session: parsed.session ?? null };
+    return { ...base, ...parsed, accounts: parsed.accounts ?? [], patients: parsed.patients ?? base.patients, reviews: parsed.reviews ?? base.reviews, settings: { ...base.settings, ...(parsed.settings ?? {}) }, session: parsed.session ?? null };
   } catch {
     return seed();
   }
@@ -202,4 +216,6 @@ export const adminActions = {
     setState((s) => ({ ...s, reviews: s.reviews.map((r) => r.id === id ? { ...r, status } : r) })),
   deleteReview: (id: string) =>
     setState((s) => ({ ...s, reviews: s.reviews.filter((r) => r.id !== id) })),
+  updateSettings: (patch: Partial<AppSettings>) =>
+    setState((s) => ({ ...s, settings: { ...s.settings, ...patch } })),
 };

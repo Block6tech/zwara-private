@@ -73,6 +73,7 @@ function AdminPage() {
             <TabsTrigger value="events">Events</TabsTrigger>
             <TabsTrigger value="videos">Videos</TabsTrigger>
             <TabsTrigger value="qa">Q&amp;A</TabsTrigger>
+            <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
 
           <TabsContent value="doctors"><DoctorsTab /></TabsContent>
@@ -84,6 +85,7 @@ function AdminPage() {
           <TabsContent value="events"><EventsTab /></TabsContent>
           <TabsContent value="videos"><VideosTab /></TabsContent>
           <TabsContent value="qa"><QATab /></TabsContent>
+          <TabsContent value="settings"><SettingsTab /></TabsContent>
         </Tabs>
       </main>
       <Toaster position="top-center" />
@@ -926,5 +928,53 @@ function ReviewsTab() {
         </Table>
       </CardContent>
     </Card>
+  );
+}
+
+function SettingsTab() {
+  const s = useAdminStore();
+  const [form, setForm] = useState(s.settings);
+  const dirty = JSON.stringify(form) !== JSON.stringify(s.settings);
+  const save = () => {
+    adminActions.updateSettings({
+      supportEmail: form.supportEmail.trim(),
+      whatsappNumber: form.whatsappNumber.trim(),
+      termsText: form.termsText,
+      privacyText: form.privacyText,
+    });
+    toast.success("Settings saved");
+  };
+  return (
+    <div className="space-y-4 mt-4 max-w-3xl">
+      <Card>
+        <CardHeader><CardTitle>Contact</CardTitle></CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-muted-foreground">Support email</label>
+            <Input type="email" value={form.supportEmail} onChange={(e) => setForm({ ...form, supportEmail: e.target.value })} placeholder="support@example.com" />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-muted-foreground">WhatsApp number</label>
+            <Input value={form.whatsappNumber} onChange={(e) => setForm({ ...form, whatsappNumber: e.target.value })} placeholder="+965 ..." />
+          </div>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader><CardTitle>Terms of service</CardTitle></CardHeader>
+        <CardContent>
+          <Textarea rows={8} value={form.termsText} onChange={(e) => setForm({ ...form, termsText: e.target.value })} />
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader><CardTitle>Privacy policy</CardTitle></CardHeader>
+        <CardContent>
+          <Textarea rows={8} value={form.privacyText} onChange={(e) => setForm({ ...form, privacyText: e.target.value })} />
+        </CardContent>
+      </Card>
+      <div className="flex justify-end gap-2">
+        <Button variant="outline" disabled={!dirty} onClick={() => setForm(s.settings)}>Reset</Button>
+        <Button onClick={save} disabled={!dirty}>Save settings</Button>
+      </div>
+    </div>
   );
 }
