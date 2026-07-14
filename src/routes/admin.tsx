@@ -68,6 +68,7 @@ function AdminPage() {
             <TabsTrigger value="accounts">Doctor accounts</TabsTrigger>
             <TabsTrigger value="patients">Patients</TabsTrigger>
             <TabsTrigger value="appointments">Appointments</TabsTrigger>
+            <TabsTrigger value="reviews">Reviews</TabsTrigger>
             <TabsTrigger value="specialties">Specialties</TabsTrigger>
             <TabsTrigger value="events">Events</TabsTrigger>
             <TabsTrigger value="videos">Videos</TabsTrigger>
@@ -78,6 +79,7 @@ function AdminPage() {
           <TabsContent value="accounts"><AccountsTab /></TabsContent>
           <TabsContent value="patients"><PatientsTab /></TabsContent>
           <TabsContent value="appointments"><AppointmentsTab role="admin" /></TabsContent>
+          <TabsContent value="reviews"><ReviewsTab /></TabsContent>
           <TabsContent value="specialties"><SpecialtiesTab /></TabsContent>
           <TabsContent value="events"><EventsTab /></TabsContent>
           <TabsContent value="videos"><VideosTab /></TabsContent>
