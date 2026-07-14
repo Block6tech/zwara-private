@@ -119,6 +119,16 @@ function seed(): Store {
       termsText: "By using Zwara Tabeya you agree to our terms of service. Bookings are confirmed subject to doctor approval. Cancellations must be made at least 24 hours before the appointment.",
       privacyText: "We collect only the information needed to provide healthcare booking services. Your data is not sold to third parties and is protected by industry-standard security.",
     },
+    locations: [
+      { id: "loc_kw_kwc", country: "Kuwait", countryAr: "الكويت", city: "Kuwait City", cityAr: "مدينة الكويت" },
+      { id: "loc_kw_salmiya", country: "Kuwait", countryAr: "الكويت", city: "Salmiya", cityAr: "السالمية" },
+      { id: "loc_kw_hawalli", country: "Kuwait", countryAr: "الكويت", city: "Hawalli", cityAr: "حولي" },
+      { id: "loc_kw_jabriya", country: "Kuwait", countryAr: "الكويت", city: "Jabriya", cityAr: "الجابرية" },
+      { id: "loc_kw_jahra", country: "Kuwait", countryAr: "الكويت", city: "Jahra", cityAr: "الجهراء" },
+      { id: "loc_kw_farwaniya", country: "Kuwait", countryAr: "الكويت", city: "Farwaniya", cityAr: "الفروانية" },
+      { id: "loc_ae_dubai", country: "UAE", countryAr: "الإمارات", city: "Dubai", cityAr: "دبي" },
+      { id: "loc_uk_london", country: "UK", countryAr: "المملكة المتحدة", city: "London", cityAr: "لندن" },
+    ],
     session: null,
   };
 }
