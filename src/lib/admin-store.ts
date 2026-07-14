@@ -22,6 +22,18 @@ export type DoctorAccount = {
   createdAt: string;
 };
 
+export type PatientStatus = "Active" | "Suspended";
+export type Patient = {
+  id: string;
+  name: string;
+  phone: string;
+  email?: string;
+  city?: string;
+  status: PatientStatus;
+  suspensionReason?: string;
+  createdAt: string;
+};
+
 type Store = {
   doctors: (Doctor & { approval: ApprovalStatus })[];
   specialties: (Specialty & { approval: ApprovalStatus })[];
@@ -30,6 +42,7 @@ type Store = {
   qa: (QAItem & { approval: ApprovalStatus })[];
   appointments: Appointment[];
   accounts: DoctorAccount[];
+  patients: Patient[];
   session: { doctorId: string } | null;
 };
 
@@ -51,6 +64,14 @@ function seed(): Store {
       { id: "a6", doctorId: "d1", patient: "Nadia", slot: "Last Mon 11:00 AM", status: "Completed", createdAt: "5d ago" },
     ],
     accounts: [],
+    patients: [
+      { id: "p1", name: "Anas Al-Aidan", phone: "+965 5000 1111", email: "anas@example.com", city: "Kuwait City", status: "Active", createdAt: new Date().toISOString() },
+      { id: "p2", name: "Sara Al-Mutairi", phone: "+965 5000 2222", email: "sara@example.com", city: "Hawalli", status: "Active", createdAt: new Date().toISOString() },
+      { id: "p3", name: "Omar Al-Rashid", phone: "+965 5000 3333", city: "Salmiya", status: "Active", createdAt: new Date().toISOString() },
+      { id: "p4", name: "Layla Hassan", phone: "+965 5000 4444", email: "layla@example.com", city: "Jahra", status: "Suspended", suspensionReason: "Reported by multiple doctors for no-shows", createdAt: new Date().toISOString() },
+      { id: "p5", name: "Hassan Al-Ali", phone: "+965 5000 5555", city: "Farwaniya", status: "Active", createdAt: new Date().toISOString() },
+      { id: "p6", name: "Nadia Al-Sabah", phone: "+965 5000 6666", email: "nadia@example.com", city: "Kuwait City", status: "Active", createdAt: new Date().toISOString() },
+    ],
     session: null,
   };
 }
@@ -62,7 +83,7 @@ function load(): Store {
     if (!raw) return seed();
     const parsed = JSON.parse(raw) as Partial<Store>;
     const base = seed();
-    return { ...base, ...parsed, accounts: parsed.accounts ?? [], session: parsed.session ?? null };
+    return { ...base, ...parsed, accounts: parsed.accounts ?? [], patients: parsed.patients ?? base.patients, session: parsed.session ?? null };
   } catch {
     return seed();
   }
@@ -148,4 +169,10 @@ export const adminActions = {
   doctorLogout: () => setState((s) => ({ ...s, session: null })),
   changeDoctorPassword: (doctorId: string, newPassword: string) =>
     setState((s) => ({ ...s, accounts: s.accounts.map((a) => a.doctorId === doctorId ? { ...a, password: newPassword, mustChangePassword: false } : a) })),
+  suspendPatient: (id: string, reason: string) =>
+    setState((s) => ({ ...s, patients: s.patients.map((p) => p.id === id ? { ...p, status: "Suspended", suspensionReason: reason } : p) })),
+  activatePatient: (id: string) =>
+    setState((s) => ({ ...s, patients: s.patients.map((p) => p.id === id ? { ...p, status: "Active", suspensionReason: undefined } : p) })),
+  deletePatient: (id: string) =>
+    setState((s) => ({ ...s, patients: s.patients.filter((p) => p.id !== id) })),
 };
