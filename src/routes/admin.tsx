@@ -832,3 +832,99 @@ function PatientsTab() {
     </Card>
   );
 }
+
+const reviewStatusColor: Record<ReviewStatus, string> = {
+  Pending: "bg-warning/15 text-warning-foreground border-warning/30",
+  Approved: "bg-success/15 text-success border-success/30",
+  Hidden: "bg-muted text-muted-foreground border-border",
+};
+
+function ReviewsTab() {
+  const s = useAdminStore();
+  const [q, setQ] = useState("");
+  const [filter, setFilter] = useState<"All" | ReviewStatus>("All");
+  const doctorName = (id: string) => s.doctors.find((d) => d.id === id)?.name ?? id;
+  const list = useMemo(() => s.reviews.filter((r) => {
+    if (filter !== "All" && r.status !== filter) return false;
+    const needle = q.toLowerCase();
+    if (!needle) return true;
+    return r.text.toLowerCase().includes(needle) || r.user.toLowerCase().includes(needle) || doctorName(r.doctorId).toLowerCase().includes(needle);
+  }), [s.reviews, q, filter, s.doctors]);
+
+  return (
+    <Card className="mt-4">
+      <CardHeader className="flex-row items-center justify-between gap-3 flex-wrap">
+        <CardTitle>Reviews & ratings</CardTitle>
+        <div className="flex items-center gap-2 flex-wrap">
+          {(["All", "Pending", "Approved", "Hidden"] as const).map((f) => (
+            <Button key={f} size="sm" variant={filter === f ? "default" : "outline"} onClick={() => setFilter(f)}>
+              {f}
+              {f !== "All" && <span className="ms-1 text-xs opacity-70">({s.reviews.filter((r) => r.status === f).length})</span>}
+            </Button>
+          ))}
+          <Input placeholder="Search…" value={q} onChange={(e) => setQ(e.target.value)} className="max-w-xs" />
+        </div>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Doctor</TableHead>
+              <TableHead>User</TableHead>
+              <TableHead>Rating</TableHead>
+              <TableHead>Review</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {list.length === 0 && (
+              <TableRow><TableCell colSpan={6} className="text-center text-sm text-muted-foreground py-6">No reviews match.</TableCell></TableRow>
+            )}
+            {list.map((r) => (
+              <TableRow key={r.id}>
+                <TableCell className="font-medium">{doctorName(r.doctorId)}</TableCell>
+                <TableCell>{r.user}</TableCell>
+                <TableCell>
+                  <span className="inline-flex items-center gap-1">
+                    <Star className="w-3.5 h-3.5 fill-warning text-warning" />
+                    {r.rating}
+                  </span>
+                </TableCell>
+                <TableCell className="max-w-sm">
+                  <div className="text-sm line-clamp-2">{r.text}</div>
+                  {r.textAr && <div className="text-xs text-muted-foreground line-clamp-1" dir="rtl">{r.textAr}</div>}
+                </TableCell>
+                <TableCell>
+                  <Badge variant="outline" className={reviewStatusColor[r.status]}>{r.status}</Badge>
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="inline-flex gap-1">
+                    {r.status !== "Approved" && (
+                      <Button size="sm" variant="outline" onClick={() => { adminActions.setReviewStatus(r.id, "Approved"); toast.success("Review approved"); }}>
+                        <Check className="w-4 h-4" />
+                      </Button>
+                    )}
+                    {r.status !== "Hidden" && (
+                      <Button size="sm" variant="outline" onClick={() => { adminActions.setReviewStatus(r.id, "Hidden"); toast.success("Review hidden"); }}>
+                        <EyeOff className="w-4 h-4" />
+                      </Button>
+                    )}
+                    {r.status === "Hidden" && (
+                      <Button size="sm" variant="outline" onClick={() => { adminActions.setReviewStatus(r.id, "Approved"); toast.success("Review shown"); }}>
+                        <Eye className="w-4 h-4" />
+                      </Button>
+                    )}
+                    <Button size="sm" variant="outline" onClick={() => { if (confirm("Delete this review?")) { adminActions.deleteReview(r.id); toast.success("Review deleted"); } }}>
+                      <Trash2 className="w-4 h-4 text-destructive" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+  );
+}
