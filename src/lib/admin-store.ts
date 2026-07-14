@@ -53,6 +53,15 @@ export type AppSettings = {
   privacyText: string;
 };
 
+export type Location = {
+  id: string;
+  country: string;
+  countryAr?: string;
+  city: string;
+  cityAr?: string;
+};
+
+
 type Store = {
   doctors: (Doctor & { approval: ApprovalStatus })[];
   specialties: (Specialty & { approval: ApprovalStatus })[];
@@ -64,6 +73,7 @@ type Store = {
   patients: Patient[];
   reviews: ReviewItem[];
   settings: AppSettings;
+  locations: Location[];
   session: { doctorId: string } | null;
 };
 
@@ -109,6 +119,16 @@ function seed(): Store {
       termsText: "By using Zwara Tabeya you agree to our terms of service. Bookings are confirmed subject to doctor approval. Cancellations must be made at least 24 hours before the appointment.",
       privacyText: "We collect only the information needed to provide healthcare booking services. Your data is not sold to third parties and is protected by industry-standard security.",
     },
+    locations: [
+      { id: "loc_kw_kwc", country: "Kuwait", countryAr: "الكويت", city: "Kuwait City", cityAr: "مدينة الكويت" },
+      { id: "loc_kw_salmiya", country: "Kuwait", countryAr: "الكويت", city: "Salmiya", cityAr: "السالمية" },
+      { id: "loc_kw_hawalli", country: "Kuwait", countryAr: "الكويت", city: "Hawalli", cityAr: "حولي" },
+      { id: "loc_kw_jabriya", country: "Kuwait", countryAr: "الكويت", city: "Jabriya", cityAr: "الجابرية" },
+      { id: "loc_kw_jahra", country: "Kuwait", countryAr: "الكويت", city: "Jahra", cityAr: "الجهراء" },
+      { id: "loc_kw_farwaniya", country: "Kuwait", countryAr: "الكويت", city: "Farwaniya", cityAr: "الفروانية" },
+      { id: "loc_ae_dubai", country: "UAE", countryAr: "الإمارات", city: "Dubai", cityAr: "دبي" },
+      { id: "loc_uk_london", country: "UK", countryAr: "المملكة المتحدة", city: "London", cityAr: "لندن" },
+    ],
     session: null,
   };
 }
@@ -120,7 +140,7 @@ function load(): Store {
     if (!raw) return seed();
     const parsed = JSON.parse(raw) as Partial<Store>;
     const base = seed();
-    return { ...base, ...parsed, accounts: parsed.accounts ?? [], patients: parsed.patients ?? base.patients, reviews: parsed.reviews ?? base.reviews, settings: { ...base.settings, ...(parsed.settings ?? {}) }, session: parsed.session ?? null };
+    return { ...base, ...parsed, accounts: parsed.accounts ?? [], patients: parsed.patients ?? base.patients, reviews: parsed.reviews ?? base.reviews, settings: { ...base.settings, ...(parsed.settings ?? {}) }, locations: parsed.locations ?? base.locations, session: parsed.session ?? null };
   } catch {
     return seed();
   }
@@ -218,4 +238,14 @@ export const adminActions = {
     setState((s) => ({ ...s, reviews: s.reviews.filter((r) => r.id !== id) })),
   updateSettings: (patch: Partial<AppSettings>) =>
     setState((s) => ({ ...s, settings: { ...s.settings, ...patch } })),
+  addLocation: (loc: Omit<Location, "id"> & { id?: string }) =>
+    setState((s) => {
+      const id = loc.id ?? `loc_${Date.now()}`;
+      return { ...s, locations: [...s.locations, { ...loc, id }] };
+    }),
+  editLocation: (id: string, patch: Partial<Location>) =>
+    setState((s) => ({ ...s, locations: s.locations.map((l) => l.id === id ? { ...l, ...patch } : l) })),
+  deleteLocation: (id: string) =>
+    setState((s) => ({ ...s, locations: s.locations.filter((l) => l.id !== id) })),
 };
+

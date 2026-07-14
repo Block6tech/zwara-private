@@ -73,6 +73,7 @@ function AdminPage() {
             <TabsTrigger value="events">Events</TabsTrigger>
             <TabsTrigger value="videos">Videos</TabsTrigger>
             <TabsTrigger value="qa">Q&amp;A</TabsTrigger>
+            <TabsTrigger value="locations">Locations</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
 
@@ -85,6 +86,7 @@ function AdminPage() {
           <TabsContent value="events"><EventsTab /></TabsContent>
           <TabsContent value="videos"><VideosTab /></TabsContent>
           <TabsContent value="qa"><QATab /></TabsContent>
+          <TabsContent value="locations"><LocationsTab /></TabsContent>
           <TabsContent value="settings"><SettingsTab /></TabsContent>
         </Tabs>
       </main>
@@ -978,3 +980,174 @@ function SettingsTab() {
     </div>
   );
 }
+
+function LocationsTab() {
+  const s = useAdminStore();
+  const [q, setQ] = useState("");
+  const [form, setForm] = useState({ country: "", countryAr: "", city: "", cityAr: "" });
+  const [editId, setEditId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState({ country: "", countryAr: "", city: "", cityAr: "" });
+
+  const grouped = useMemo(() => {
+    const needle = q.trim().toLowerCase();
+    const list = s.locations.filter((l) =>
+      !needle ||
+      l.country.toLowerCase().includes(needle) ||
+      l.city.toLowerCase().includes(needle) ||
+      (l.countryAr ?? "").includes(needle) ||
+      (l.cityAr ?? "").includes(needle),
+    );
+    const map = new Map<string, typeof list>();
+    for (const l of list) {
+      const key = l.country;
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(l);
+    }
+    return Array.from(map.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+  }, [s.locations, q]);
+
+  const add = () => {
+    const country = form.country.trim();
+    const city = form.city.trim();
+    if (!country || !city) { toast.error("Country and city are required"); return; }
+    if (s.locations.some((l) => l.country.toLowerCase() === country.toLowerCase() && l.city.toLowerCase() === city.toLowerCase())) {
+      toast.error("This city already exists in that country"); return;
+    }
+    adminActions.addLocation({ country, countryAr: form.countryAr.trim() || undefined, city, cityAr: form.cityAr.trim() || undefined });
+    setForm({ country: "", countryAr: "", city: "", cityAr: "" });
+    toast.success("Location added");
+  };
+
+  const startEdit = (id: string) => {
+    const l = s.locations.find((x) => x.id === id);
+    if (!l) return;
+    setEditId(id);
+    setEditForm({ country: l.country, countryAr: l.countryAr ?? "", city: l.city, cityAr: l.cityAr ?? "" });
+  };
+  const saveEdit = () => {
+    if (!editId) return;
+    adminActions.editLocation(editId, {
+      country: editForm.country.trim(),
+      countryAr: editForm.countryAr.trim() || undefined,
+      city: editForm.city.trim(),
+      cityAr: editForm.cityAr.trim() || undefined,
+    });
+    setEditId(null);
+    toast.success("Location updated");
+  };
+
+  return (
+    <div className="space-y-4 mt-4">
+      <Card>
+        <CardHeader><CardTitle>Add location</CardTitle></CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground">Country</label>
+              <Input value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} placeholder="Kuwait" />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground">Country (Arabic)</label>
+              <Input dir="rtl" value={form.countryAr} onChange={(e) => setForm({ ...form, countryAr: e.target.value })} placeholder="الكويت" />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground">City</label>
+              <Input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} placeholder="Kuwait City" />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground">City (Arabic)</label>
+              <Input dir="rtl" value={form.cityAr} onChange={(e) => setForm({ ...form, cityAr: e.target.value })} placeholder="مدينة الكويت" />
+            </div>
+          </div>
+          <div className="flex justify-end mt-3">
+            <Button onClick={add}>Add location</Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="flex-row items-center justify-between gap-3">
+          <CardTitle>Countries &amp; cities ({s.locations.length})</CardTitle>
+          <Input placeholder="Search…" value={q} onChange={(e) => setQ(e.target.value)} className="max-w-xs" />
+        </CardHeader>
+        <CardContent>
+          {grouped.length === 0 && (
+            <div className="text-sm text-muted-foreground py-6 text-center">No locations yet.</div>
+          )}
+          <div className="space-y-4">
+            {grouped.map(([country, items]) => (
+              <div key={country}>
+                <div className="text-sm font-semibold mb-2">
+                  {country}
+                  {items[0]?.countryAr && <span className="text-muted-foreground font-normal ms-2" dir="rtl">— {items[0].countryAr}</span>}
+                  <span className="text-xs text-muted-foreground ms-2">({items.length})</span>
+                </div>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>City</TableHead>
+                      <TableHead>City (Arabic)</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {items.map((l) => (
+                      <TableRow key={l.id}>
+                        <TableCell className="font-medium">{l.city}</TableCell>
+                        <TableCell dir="rtl">{l.cityAr ?? "—"}</TableCell>
+                        <TableCell className="text-right">
+                          <div className="inline-flex gap-1">
+                            <Button size="sm" variant="outline" onClick={() => startEdit(l.id)}>
+                              <Pencil className="w-4 h-4" />
+                            </Button>
+                            <Button size="sm" variant="outline" onClick={() => {
+                              if (confirm(`Delete ${l.city}?`)) {
+                                adminActions.deleteLocation(l.id);
+                                toast.success("Location deleted");
+                              }
+                            }}>
+                              <Trash2 className="w-4 h-4 text-destructive" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Dialog open={!!editId} onOpenChange={(o) => !o && setEditId(null)}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Edit location</DialogTitle></DialogHeader>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground">Country</label>
+              <Input value={editForm.country} onChange={(e) => setEditForm({ ...editForm, country: e.target.value })} />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground">Country (Arabic)</label>
+              <Input dir="rtl" value={editForm.countryAr} onChange={(e) => setEditForm({ ...editForm, countryAr: e.target.value })} />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground">City</label>
+              <Input value={editForm.city} onChange={(e) => setEditForm({ ...editForm, city: e.target.value })} />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground">City (Arabic)</label>
+              <Input dir="rtl" value={editForm.cityAr} onChange={(e) => setEditForm({ ...editForm, cityAr: e.target.value })} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditId(null)}>Cancel</Button>
+            <Button onClick={saveEdit}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+

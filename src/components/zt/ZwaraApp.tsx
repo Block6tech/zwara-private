@@ -11,6 +11,7 @@ import { DoctorAvatar } from "./Avatar";
 import { MobileShell } from "./MobileShell";
 import { toast } from "sonner";
 import { useI18n } from "@/lib/i18n";
+import { useAdminStore } from "@/lib/admin-store";
 import logo from "@/assets/logo.png";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -398,9 +399,15 @@ function DoctorCard({ doctor, onClick }: { doctor: Doctor; onClick: () => void }
 /* ---------------- ALL DOCTORS ---------------- */
 function AllDoctorsScreen({ onBack, onOpenDoctor }: { onBack: () => void; onOpenDoctor: (id: string) => void }) {
   const { t } = useI18n();
+  const adminStore = useAdminStore();
   const [query, setQuery] = useState("");
   const [activeSpec, setActiveSpec] = useState<string | null>(null);
-  const cities = useMemo(() => Array.from(new Set(doctors.map((d) => d.city))), []);
+  const cities = useMemo(() => {
+    const set = new Set<string>();
+    doctors.forEach((d) => set.add(d.city));
+    adminStore.locations.forEach((l) => set.add(l.city));
+    return Array.from(set).sort();
+  }, [adminStore.locations]);
   const [activeCity, setActiveCity] = useState<string | null>(null);
 
   const filtered = useMemo(
