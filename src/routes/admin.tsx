@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { Check, X, Pencil, Trash2, ArrowLeft, ShieldCheck, Eye, EyeOff, Star } from "lucide-react";
+import { ProfileEditor } from "./doctor";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [{ title: "Admin Panel — Zwara Tabeya" }, { name: "robots", content: "noindex" }] }),
