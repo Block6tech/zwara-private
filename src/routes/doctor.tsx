@@ -125,7 +125,7 @@ function LoginScreen() {
   );
 }
 
-function ProfileEditor({ doctorId }: { doctorId: string }) {
+export function ProfileEditor({ doctorId }: { doctorId: string }) {
   const s = useAdminStore();
   const doc = s.doctors.find((d) => d.id === doctorId);
   const [form, setForm] = useState(() => ({
