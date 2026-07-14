@@ -53,6 +53,15 @@ export type AppSettings = {
   privacyText: string;
 };
 
+export type Location = {
+  id: string;
+  country: string;
+  countryAr?: string;
+  city: string;
+  cityAr?: string;
+};
+
+
 type Store = {
   doctors: (Doctor & { approval: ApprovalStatus })[];
   specialties: (Specialty & { approval: ApprovalStatus })[];
