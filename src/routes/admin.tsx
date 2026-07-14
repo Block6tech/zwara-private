@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { useAdminStore, adminActions, type Appointment, type ApprovalStatus, type Patient } from "@/lib/admin-store";
+import { useAdminStore, adminActions, type Appointment, type ApprovalStatus, type Patient, type ReviewStatus } from "@/lib/admin-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
-import { Check, X, Pencil, Trash2, ArrowLeft, ShieldCheck } from "lucide-react";
+import { Check, X, Pencil, Trash2, ArrowLeft, ShieldCheck, Eye, EyeOff, Star } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [{ title: "Admin Panel — Zwara Tabeya" }, { name: "robots", content: "noindex" }] }),
@@ -52,13 +52,14 @@ function AdminPage() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-6">
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-7 gap-3 mb-6">
           <Stat label="Doctors" value={s.doctors.length} />
           <Stat label="Pending doctors" value={s.doctors.filter((d) => d.approval === "Pending").length} highlight />
           <Stat label="Patients" value={s.patients.length} />
           <Stat label="Suspended" value={s.patients.filter((p) => p.status === "Suspended").length} highlight />
           <Stat label="Appointments" value={s.appointments.length} />
           <Stat label="Pending appts" value={s.appointments.filter((a) => a.status === "Pending").length} highlight />
+          <Stat label="Pending reviews" value={s.reviews.filter((r) => r.status === "Pending").length} highlight />
         </div>
 
         <Tabs defaultValue="doctors">
@@ -67,6 +68,7 @@ function AdminPage() {
             <TabsTrigger value="accounts">Doctor accounts</TabsTrigger>
             <TabsTrigger value="patients">Patients</TabsTrigger>
             <TabsTrigger value="appointments">Appointments</TabsTrigger>
+            <TabsTrigger value="reviews">Reviews</TabsTrigger>
             <TabsTrigger value="specialties">Specialties</TabsTrigger>
             <TabsTrigger value="events">Events</TabsTrigger>
             <TabsTrigger value="videos">Videos</TabsTrigger>
@@ -77,6 +79,7 @@ function AdminPage() {
           <TabsContent value="accounts"><AccountsTab /></TabsContent>
           <TabsContent value="patients"><PatientsTab /></TabsContent>
           <TabsContent value="appointments"><AppointmentsTab role="admin" /></TabsContent>
+          <TabsContent value="reviews"><ReviewsTab /></TabsContent>
           <TabsContent value="specialties"><SpecialtiesTab /></TabsContent>
           <TabsContent value="events"><EventsTab /></TabsContent>
           <TabsContent value="videos"><VideosTab /></TabsContent>
@@ -826,6 +829,102 @@ function PatientsTab() {
           <DialogFooter><Button variant="outline" onClick={() => setViewId(null)}>Close</Button></DialogFooter>
         </DialogContent>
       </Dialog>
+    </Card>
+  );
+}
+
+const reviewStatusColor: Record<ReviewStatus, string> = {
+  Pending: "bg-warning/15 text-warning-foreground border-warning/30",
+  Approved: "bg-success/15 text-success border-success/30",
+  Hidden: "bg-muted text-muted-foreground border-border",
+};
+
+function ReviewsTab() {
+  const s = useAdminStore();
+  const [q, setQ] = useState("");
+  const [filter, setFilter] = useState<"All" | ReviewStatus>("All");
+  const doctorName = (id: string) => s.doctors.find((d) => d.id === id)?.name ?? id;
+  const list = useMemo(() => s.reviews.filter((r) => {
+    if (filter !== "All" && r.status !== filter) return false;
+    const needle = q.toLowerCase();
+    if (!needle) return true;
+    return r.text.toLowerCase().includes(needle) || r.user.toLowerCase().includes(needle) || doctorName(r.doctorId).toLowerCase().includes(needle);
+  }), [s.reviews, q, filter, s.doctors]);
+
+  return (
+    <Card className="mt-4">
+      <CardHeader className="flex-row items-center justify-between gap-3 flex-wrap">
+        <CardTitle>Reviews & ratings</CardTitle>
+        <div className="flex items-center gap-2 flex-wrap">
+          {(["All", "Pending", "Approved", "Hidden"] as const).map((f) => (
+            <Button key={f} size="sm" variant={filter === f ? "default" : "outline"} onClick={() => setFilter(f)}>
+              {f}
+              {f !== "All" && <span className="ms-1 text-xs opacity-70">({s.reviews.filter((r) => r.status === f).length})</span>}
+            </Button>
+          ))}
+          <Input placeholder="Search…" value={q} onChange={(e) => setQ(e.target.value)} className="max-w-xs" />
+        </div>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Doctor</TableHead>
+              <TableHead>User</TableHead>
+              <TableHead>Rating</TableHead>
+              <TableHead>Review</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {list.length === 0 && (
+              <TableRow><TableCell colSpan={6} className="text-center text-sm text-muted-foreground py-6">No reviews match.</TableCell></TableRow>
+            )}
+            {list.map((r) => (
+              <TableRow key={r.id}>
+                <TableCell className="font-medium">{doctorName(r.doctorId)}</TableCell>
+                <TableCell>{r.user}</TableCell>
+                <TableCell>
+                  <span className="inline-flex items-center gap-1">
+                    <Star className="w-3.5 h-3.5 fill-warning text-warning" />
+                    {r.rating}
+                  </span>
+                </TableCell>
+                <TableCell className="max-w-sm">
+                  <div className="text-sm line-clamp-2">{r.text}</div>
+                  {r.textAr && <div className="text-xs text-muted-foreground line-clamp-1" dir="rtl">{r.textAr}</div>}
+                </TableCell>
+                <TableCell>
+                  <Badge variant="outline" className={reviewStatusColor[r.status]}>{r.status}</Badge>
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="inline-flex gap-1">
+                    {r.status !== "Approved" && (
+                      <Button size="sm" variant="outline" onClick={() => { adminActions.setReviewStatus(r.id, "Approved"); toast.success("Review approved"); }}>
+                        <Check className="w-4 h-4" />
+                      </Button>
+                    )}
+                    {r.status !== "Hidden" && (
+                      <Button size="sm" variant="outline" onClick={() => { adminActions.setReviewStatus(r.id, "Hidden"); toast.success("Review hidden"); }}>
+                        <EyeOff className="w-4 h-4" />
+                      </Button>
+                    )}
+                    {r.status === "Hidden" && (
+                      <Button size="sm" variant="outline" onClick={() => { adminActions.setReviewStatus(r.id, "Approved"); toast.success("Review shown"); }}>
+                        <Eye className="w-4 h-4" />
+                      </Button>
+                    )}
+                    <Button size="sm" variant="outline" onClick={() => { if (confirm("Delete this review?")) { adminActions.deleteReview(r.id); toast.success("Review deleted"); } }}>
+                      <Trash2 className="w-4 h-4 text-destructive" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
     </Card>
   );
 }

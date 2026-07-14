@@ -34,6 +34,18 @@ export type Patient = {
   createdAt: string;
 };
 
+export type ReviewStatus = "Approved" | "Hidden" | "Pending";
+export type ReviewItem = {
+  id: string;
+  doctorId: string;
+  user: string;
+  rating: number;
+  text: string;
+  textAr: string;
+  status: ReviewStatus;
+  createdAt: string;
+};
+
 type Store = {
   doctors: (Doctor & { approval: ApprovalStatus })[];
   specialties: (Specialty & { approval: ApprovalStatus })[];
@@ -43,6 +55,7 @@ type Store = {
   appointments: Appointment[];
   accounts: DoctorAccount[];
   patients: Patient[];
+  reviews: ReviewItem[];
   session: { doctorId: string } | null;
 };
 
@@ -72,6 +85,16 @@ function seed(): Store {
       { id: "p5", name: "Hassan Al-Ali", phone: "+965 5000 5555", city: "Farwaniya", status: "Active", createdAt: new Date().toISOString() },
       { id: "p6", name: "Nadia Al-Sabah", phone: "+965 5000 6666", email: "nadia@example.com", city: "Kuwait City", status: "Active", createdAt: new Date().toISOString() },
     ],
+    reviews: seedDoctors.flatMap((d, di) => d.reviews.map((r, ri) => ({
+      id: `r_${d.id}_${ri}`,
+      doctorId: d.id,
+      user: r.user,
+      rating: r.rating,
+      text: r.text,
+      textAr: r.textAr,
+      status: (di === 0 && ri === 0 ? "Pending" : "Approved") as ReviewStatus,
+      createdAt: new Date(Date.now() - (di * 3 + ri) * 86400000).toISOString(),
+    }))),
     session: null,
   };
 }
@@ -83,7 +106,7 @@ function load(): Store {
     if (!raw) return seed();
     const parsed = JSON.parse(raw) as Partial<Store>;
     const base = seed();
-    return { ...base, ...parsed, accounts: parsed.accounts ?? [], patients: parsed.patients ?? base.patients, session: parsed.session ?? null };
+    return { ...base, ...parsed, accounts: parsed.accounts ?? [], patients: parsed.patients ?? base.patients, reviews: parsed.reviews ?? base.reviews, session: parsed.session ?? null };
   } catch {
     return seed();
   }
@@ -175,4 +198,8 @@ export const adminActions = {
     setState((s) => ({ ...s, patients: s.patients.map((p) => p.id === id ? { ...p, status: "Active", suspensionReason: undefined } : p) })),
   deletePatient: (id: string) =>
     setState((s) => ({ ...s, patients: s.patients.filter((p) => p.id !== id) })),
+  setReviewStatus: (id: string, status: ReviewStatus) =>
+    setState((s) => ({ ...s, reviews: s.reviews.map((r) => r.id === id ? { ...r, status } : r) })),
+  deleteReview: (id: string) =>
+    setState((s) => ({ ...s, reviews: s.reviews.filter((r) => r.id !== id) })),
 };
