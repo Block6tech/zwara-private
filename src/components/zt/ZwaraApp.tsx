@@ -307,7 +307,7 @@ function HomeTab({
       {upcomingDoc && upcoming && (
         <section className="px-5 mt-2">
           <div className="rounded-2xl p-4 bg-gradient-primary text-primary-foreground shadow-card flex items-center gap-3">
-            <DoctorAvatar seed={upcomingDoc.avatarSeed} name={upcomingDoc.name} size={48} />
+            <DoctorAvatar seed={upcomingDoc.avatarSeed} name={upcomingDoc.name} size={48} photoUrl={upcomingDoc.photoUrl} />
             <div className="flex-1 min-w-0">
               <p className="text-[11px] opacity-90 uppercase tracking-wide">{t("home.upcoming")}</p>
               <p className="font-semibold truncate">{dName(upcomingDoc, lang)}</p>
@@ -374,7 +374,7 @@ function DoctorCard({ doctor, onClick }: { doctor: Doctor; onClick: () => void }
       onClick={onClick}
       className="w-full text-start bg-card border border-border rounded-2xl p-3.5 shadow-soft hover:shadow-card hover:border-primary/30 transition-all flex gap-3"
     >
-      <DoctorAvatar seed={doctor.avatarSeed} name={doctor.name} size={60} />
+      <DoctorAvatar seed={doctor.avatarSeed} name={doctor.name} size={60} photoUrl={doctor.photoUrl} />
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between gap-2">
           <p className="font-semibold truncate">{dName(doctor, lang)}</p>
@@ -605,7 +605,7 @@ function DoctorScreen({ doctor, onBack, onBook }: { doctor: Doctor; onBack: () =
           <BackIcon className="w-5 h-5" />
         </button>
         <div className="flex items-center gap-4 mt-2">
-          <DoctorAvatar seed={doctor.avatarSeed} name={doctor.name} size={84} />
+          <DoctorAvatar seed={doctor.avatarSeed} name={doctor.name} size={84} photoUrl={doctor.photoUrl} />
           <div className="flex-1 min-w-0">
             <h2 className="text-lg font-bold leading-tight">{dName(doctor, lang)}</h2>
             <p className="text-sm text-primary font-medium">{doctor.specialization}</p>
@@ -789,7 +789,7 @@ function BookingConfirm({ doctor, slot, onBack, onConfirm }: { doctor: Doctor; s
       </div>
       <div className="px-5 space-y-4">
         <div className="bg-card border border-border rounded-2xl p-4 shadow-soft flex gap-3 items-center">
-          <DoctorAvatar seed={doctor.avatarSeed} name={doctor.name} size={56} />
+          <DoctorAvatar seed={doctor.avatarSeed} name={doctor.name} size={56} photoUrl={doctor.photoUrl} />
           <div>
             <p className="font-semibold">{dName(doctor, lang)}</p>
             <p className="text-xs text-primary">{doctor.specialization}</p>
@@ -1149,7 +1149,7 @@ function BookingsScreen({ bookings, onBack }: { bookings: Booking[]; onBack: () 
           return (
             <div key={b.id} className="bg-card border border-border rounded-2xl p-4 shadow-soft">
               <div className="flex gap-3 items-center">
-                <DoctorAvatar seed={d.avatarSeed} name={d.name} size={48} />
+                <DoctorAvatar seed={d.avatarSeed} name={d.name} size={48} photoUrl={d.photoUrl} />
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-sm truncate">{dName(d, lang)}</p>
                   <p className="text-xs text-primary">{d.specialization}</p>

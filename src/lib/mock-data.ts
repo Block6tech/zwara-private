@@ -40,6 +40,11 @@ export type Doctor = {
   avatarSeed: string;
   specialtyId: string;
   nextSlots: string[];
+  photoUrl?: string;
+  clinicName?: string;
+  clinicAddress?: string;
+  phone?: string;
+  email?: string;
 };
 
 export const doctors: Doctor[] = [

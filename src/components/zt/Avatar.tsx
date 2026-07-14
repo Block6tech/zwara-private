@@ -14,8 +14,8 @@ const portraits: Record<string, string> = {
   hassan,
 };
 
-export function DoctorAvatar({ seed, name, size = 56 }: { seed: string; name: string; size?: number }) {
-  const src = portraits[seed];
+export function DoctorAvatar({ seed, name, size = 56, photoUrl }: { seed: string; name: string; size?: number; photoUrl?: string }) {
+  const src = photoUrl || portraits[seed];
   const initials = name
     .replace("Dr. ", "")
     .split(" ")
