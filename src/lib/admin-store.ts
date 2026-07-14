@@ -103,6 +103,12 @@ function seed(): Store {
       status: (di === 0 && ri === 0 ? "Pending" : "Approved") as ReviewStatus,
       createdAt: new Date(Date.now() - (di * 3 + ri) * 86400000).toISOString(),
     }))),
+    settings: {
+      supportEmail: "support@zwara-tabeya.com",
+      whatsappNumber: "+965 5000 0000",
+      termsText: "By using Zwara Tabeya you agree to our terms of service. Bookings are confirmed subject to doctor approval. Cancellations must be made at least 24 hours before the appointment.",
+      privacyText: "We collect only the information needed to provide healthcare booking services. Your data is not sold to third parties and is protected by industry-standard security.",
+    },
     session: null,
   };
 }
