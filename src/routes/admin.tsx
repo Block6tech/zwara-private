@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
-import { Check, X, Pencil, Trash2, ArrowLeft, ShieldCheck } from "lucide-react";
+import { Check, X, Pencil, Trash2, ArrowLeft, ShieldCheck, Eye, EyeOff, Star } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [{ title: "Admin Panel — Zwara Tabeya" }, { name: "robots", content: "noindex" }] }),
