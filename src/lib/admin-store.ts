@@ -85,6 +85,16 @@ function seed(): Store {
       { id: "p5", name: "Hassan Al-Ali", phone: "+965 5000 5555", city: "Farwaniya", status: "Active", createdAt: new Date().toISOString() },
       { id: "p6", name: "Nadia Al-Sabah", phone: "+965 5000 6666", email: "nadia@example.com", city: "Kuwait City", status: "Active", createdAt: new Date().toISOString() },
     ],
+    reviews: seedDoctors.flatMap((d, di) => d.reviews.map((r, ri) => ({
+      id: `r_${d.id}_${ri}`,
+      doctorId: d.id,
+      user: r.user,
+      rating: r.rating,
+      text: r.text,
+      textAr: r.textAr,
+      status: (di === 0 && ri === 0 ? "Pending" : "Approved") as ReviewStatus,
+      createdAt: new Date(Date.now() - (di * 3 + ri) * 86400000).toISOString(),
+    }))),
     session: null,
   };
 }
